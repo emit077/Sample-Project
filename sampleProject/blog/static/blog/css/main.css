@@ -1,0 +1,85 @@
+body {
+    margin: 0;
+    background-color: #f1f1f1;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .text {
+    color: white;
+    font-size: 20px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    -webkit-transform: translate(-50%, -50%);
+    -ms-transform: translate(-50%, -50%);
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+  }
+  /* .container {
+position: relative;
+width: 100%;
+} */
+.image_container {
+position: -webkit-sticky;
+z-index: 2;
+position: sticky;
+top: -550px;
+}
+
+.overlay_image {
+display: block;
+width: 100%;
+height: 600px;
+
+}
+
+.image_overlay {
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+background-color: rgba(0, 0, 0, 0.8);
+overflow: hidden;
+width: 100%;
+height: 100%;
+transition: .5s ease;
+}
+
+.image_container :hover .overlay {
+width: 100%;
+}
+/* //;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; */
+
+* {box-sizing: border-box;}
+
+.containerblock {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+}
+
+.imageblock {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.overlayblock {
+  position: absolute; 
+  bottom: 0; 
+  background: rgb(0, 0, 0);
+  background: rgba(0, 0, 0, 0.5); /* Black see-through */
+  color: #f1f1f1; 
+  width: 100%;
+  transition: .5s ease;
+  opacity:0;
+  color: white;
+  font-weight: bold;
+  font: size 2.5 vw;
+  padding: 5vh;
+  text-align: center;
+}
+
+.containerblock:hover .overlayblock {
+  opacity: 1;
+}

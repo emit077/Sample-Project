@@ -1,0 +1,29 @@
+<form id="idForm" method="POST" action="{% url 'blog-home' %}">
+    {% for pi in userdata %}
+    <select name="users" id="selectthis" multiple>
+        <option value="{{ pi.id }}">{{ pi.name }}</option>
+    </select>
+    {% endfor %}
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+<script>
+    $("#idForm").submit(function (e) {
+        e.preventDefault();
+        var form = $(this);
+        var url = form.attr('action');
+        var data = form.serialize()
+        // alert(userids);
+        var userids = str.replace("&users=", ",");
+        // alert(userids);
+        $.ajax({
+            type: "POST",
+            url: url,
+            data: form.serialize(),
+            success: function (data) {
+                alert(data);
+            }
+        });
+
+
+    });
+</script>

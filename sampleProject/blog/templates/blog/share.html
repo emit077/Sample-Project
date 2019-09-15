@@ -1,0 +1,176 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="{% static 'blog/css/main.css'  %}">
+    <link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'blog/css/bootstrap_nav.css' %}"> -->
+    <script src="{% static 'blog/js/jquery.min.js' %}"></script>
+    <script src="{% static 'blog/js/jquery.min.js' %}"></script>
+    <style>
+        .jumbotron {
+            width: 80%;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center;
+        }
+    </style>
+
+</head>
+
+<nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <a class="navbar-brand" href="#">Navbar</a>
+    <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
+        aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
+    <div class="collapse navbar-collapse" id="collapsibleNavId" style="position: fixed;right: 20px;">
+        <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+            <li class="nav-item ">
+                <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item ">
+                <a class="nav-link btn" onclick="share_option()">Share Option </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="#">Logout</a>
+            </li>
+        </ul>
+    </div>
+</nav>
+<script>
+ function share_option() {
+    //  alert("option");
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'blog-Share_option' %}",
+                success: function (data) {
+                    $("#showhere").html(data)   
+                }
+            });
+        }
+   
+
+</script>
+
+
+
+<div id="showhere">
+    <div class="jumbotron jumbotron-fluid" style="display: none" id="text_note">
+        <div class="container">
+            <form method="POST">
+                {% csrf_token %}
+                <!-- <p>Title:<input type="text" id="title" name="title" /></p> -->
+                <p>Description:<br> <textarea id="notes" cols="75" rows="5" name="notes" /></textarea></p>
+                <br>
+                <input type="button" class="btn btn-outline-info" value="Submit" onclick="PostBlog()" />
+                <input type="button" class="btn btn-outline-warning" value="Close" onclick="close()" />
+            </form>
+        </div>
+    </div>
+    <button id="disply_textbox" class="btn btn-success" onclick="showhere()">Add notes</button>
+    {% for pi in data  %}
+    <section class="container">
+        <div class="container bg-info" style="width:100%">
+            <div class="card">
+                <div class="row">
+                    <div class="col-md-11 px-3">
+                        <div class="card-block px-5"><br>
+                            <!-- <h3 class="card-title text-justify" style="text-decoration-line: underline;">
+                                {{pi.blog_title}}...
+                            </h3> -->
+                            <p style="text-align:right">{{pi.creation_date}}</p>
+                            <hr style="border-top-color: #1d211a;">
+                            <div id="Update_{{pi.id}}">
+                                <p id="notes_{{pi.id}}" class="card-text">{{pi.blog_notes}} </p>
+
+                                <a href="" class="btn ">Read More</a>
+                                <a id="{{pi.id}}" class="btn btn-outline-primary"
+                                    onclick="update_notes(this)">Update</a>
+                                <a id="delete_{{pi.id}}" class="btn btn-outline-danger"
+                                    onclick="delete_notes(this)">Delete</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section><br>
+    {% endfor %}
+    <script>
+        $(document).ready(function () {
+            $("#disply_textbox").click(function () {
+                $("#text_note").show();
+                $("#disply_textbox").hide();
+            });
+            // $("#register").click(function () {
+            //     $("#loginform").hide();
+            //     $("#registrationform").show();
+            // });
+        });
+
+        function update_notes(e) {
+            var id = $(e).attr('id');
+            var str = $("#notes_" + id).text();
+            alert(id);
+            alert(str);
+            $("#Update_" + id).empty();
+            $("#Update_" + id).html('<textarea  type="text" id="notes_' + id + '" cols="75" rows="5" name="notes" value="' + str + '" /> ' + str + '</textarea>' + '<br>' + '<input type="button" value="Submit" id="btn_' + id + '" onclick="PostBlogUpload(this)" />');
+            $("#_" + id).hide();
+            $("#delete_" + id).hide();
+
+        }
+        function delete_notes(e) {
+            var ids = $(e).attr('id');
+            // alert(ids);
+            var nw = ids.split("_");
+            var id = nw[1];
+            alert(id);
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'blog-Delete_notes' %}",
+                data: { id: id },
+                success: function (data) {
+                    alert("Deleted");
+                    $("#showhere").html(data)
+                }
+            });
+        }
+        function PostBlog() {
+            // var title = $('#title').val();
+            var notes = $('#notes').val();
+            alert(notes);
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-Save_notes' %}",
+                data: { 'notes': notes },
+                success: function (data) {
+                    $("#showhere").html(data);
+                    //alert(data);
+                }
+            });
+        }
+        function PostBlogUpload(e) {
+            // var title = $('#title').val();
+            var ids = $(e).attr('id');
+            var nw = ids.split("_");
+            var id = nw[1];
+            alert(id);
+            var notes = $('#notes_' + id).val();
+            // alert(title);
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-Update_notes' %}",
+                data: { 'id': id, 'notes': notes },
+                success: function (data) {
+                    $("#showhere").html(data);
+                    //alert(data);
+                }
+            });
+        }
+    </script>
+</div>
+
+</html>
