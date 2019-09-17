@@ -18,9 +18,13 @@ class blog_data(models.Model):
     username = models.CharField(max_length=100)
     # blog_title = models.CharField(max_length=100)
     blog_notes = models.TextField(max_length=None)
-    sharedwith = models.TextField(max_length= None)
-    notsharedwith = models.TextField(max_length=None)
+    sharetoReadOnly = models.TextField(max_length= None)
+    sharetoRW = models.TextField(max_length=None)
     creation_date = models.DateTimeField()
     updation_date = models.DateTimeField()
     history = models.TextField(max_length=None)
     deletedstatuse=models.BooleanField()
+
+
+def title(self):
+        return self.blog_notes[:20]

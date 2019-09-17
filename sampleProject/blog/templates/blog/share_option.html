@@ -1,29 +1,40 @@
-<form id="idForm" method="POST" action="{% url 'blog-home' %}">
-    {% for pi in userdata %}
-    <select name="users" id="selectthis" multiple>
-        <option value="{{ pi.id }}">{{ pi.name }}</option>
-    </select>
-    {% endfor %}
-    <button type="submit" class="btn btn-primary">Submit</button>
-</form>
-<script>
-    $("#idForm").submit(function (e) {
-        e.preventDefault();
-        var form = $(this);
-        var url = form.attr('action');
-        var data = form.serialize()
-        // alert(userids);
-        var userids = str.replace("&users=", ",");
-        // alert(userids);
-        $.ajax({
-            type: "POST",
-            url: url,
-            data: form.serialize(),
-            success: function (data) {
-                alert(data);
-            }
+<div id="here">
+    <input type="checkbox" name="vehicle3" value="Write"  id="cheakbox"checked> Write
+    <form id="idForm">
+        <!-- {% csrf_token %} -->
+        {% for pi in userdata %}
+        <select name="users" id="selectthis" multiple>
+            <li>
+                <option value="{{ pi.id }}">{{ pi.name }}</option>
+            </li>
+        </select>
+        {% endfor %}
+
+    </form>
+    <button id="option" type="submit" class="btn btn-outline-secondary">Submit</button>
+    <p id="sd"></p>
+
+    <script>
+        $(document).ready(function () {
+            $("#option").click(function () {
+                var hello = $("#idForm").serialize();
+                var res = hello.substring(6);
+                var str = res.split("&users=");
+                var cheak=$("#cheakbox").val();
+                // alert(cheak);
+                // alert(str);
+                // $("#sd").text(str);  
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'blog-Share_option_save' %}",
+                    data: { str: str ,cheak:cheakbox },
+                    success: function (data) {
+                        // alert(data);
+                        $("#showhere").html(data);
+                    }
+                });
+
+            });
         });
-
-
-    });
-</script>
+    </script>
+</div>

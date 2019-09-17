@@ -28,19 +28,29 @@ def Login(request):
     if userdata.password == request.POST['password']:
         request.session['name'] = userdata.name
         request.session['userid'] = userdata.id
-        data = blog_data.objects.all().order_by('-creation_date')[:5]
-        return render(request, 'blog/share.html', {'data': data})
+        # data = blog_data.objects.all().order_by('-creation_date')[:5]
+        # filter(client=client_id)
+        data = blog_data.objects.filter(
+            userid=userdata.id).order_by('-creation_date')[:5]
+        return render(request, 'blog/share.html', {'data': data, 'username': userdata.name})
         # return render(request, 'blog/share.html')
     else:
         return HttpResponse("Your username and password didn't match.")
 
 
 def Share(request):
-    return HttpResponse("a")
+    id = request.session['userid']
+    if id:
+        data = blog_data.objects.filter(
+            userid=id).order_by('-creation_date')[:5]
+        return render(request, 'blog/share.html', {'data': data})
+    else:
+        return render(request, 'blog/home.html')
 
 
 def Save_notes(request):
     postdata = blog_data()
+    id = request.session['userid']
     postdata.userid = request.session['userid']
     postdata.username = request.session['name']
     # postdata.blog_title = request.GET['title']
@@ -49,31 +59,48 @@ def Save_notes(request):
     postdata.updation_date = timezone.now()
     postdata.deletedstatuse = 0
     postdata.save()
-    data = blog_data.objects.all().order_by('-creation_date')[:5]
+    data = blog_data.objects.filter(userid=id).order_by('-creation_date')[:5]
     return render(request, 'blog/share.html', {'data': data})
 
     # return render(request, 'blog/home.html')
 
 
 def Update_notes(request):
+    id = request.session['userid']
     postdata = blog_data.objects.get(id=request.GET['id'])
     postdata.blog_notes = request.GET['notes']
     postdata.updation_date = timezone.now()
     postdata.save()
-    data = blog_data.objects.all().order_by('-creation_date')[:5]
-    return render(request, 'blog/share.html', {'data': data})
+    co = blog_data.objects.filter(userid=id).count()
+    if co > 0:
+        data = blog_data.objects.filter(
+            userid=id).order_by('-creation_date')[:5]
+        return render(request, 'blog/share.html', {'data': data, 'hide': "hide"})
+    else:
+        return HttpResponse("no data" + id)
 
 
 def Delete_notes(request):
+    id = request.session['userid']
     postdata = blog_data.objects.get(id=request.GET['id'])
     postdata.delete()
-    data = blog_data.objects.all().order_by('-creation_date')
+    data = blog_data.objects.filter(userid=id).order_by('-creation_date')[:5]
     return render(request, 'blog/share.html', {'data': data})
     # postdata.deletedstatuse=1
     # postdata.history="deleted by"+request.session['userid']+","+request.session['name']+", @"+timezone.now()
     # postdata.save
 
-
 def Share_option(request):
-    userdata = user.objects.all().order_by('id')
+    userdata=user.objects.all().order_by('id')
     return render(request, 'blog/share_option.html', {'userdata': userdata})
+
+
+def Share_option_save(request):
+    id = request.session['userid']
+    postdata = blog_data.objects.get(id=request.GET['id'])
+    if request.GET['cheak']:
+        postdata.sharetoRW = request.GET['str']
+    else:
+        postdata.sharetoReadOnly = request.GET['str']
+    data = blog_data.objects.filter(userid=id).order_by('-creation_date')[:5]
+    return render(request, 'blog/share.html', {'data': data})
