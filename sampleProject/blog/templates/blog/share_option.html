@@ -1,3 +1,5 @@
+{% load static %}
+<script src="{% static 'blog/js/ajax.js' %}"></script>
 <div id="here">
     <input type="checkbox" name="vehicle3" value="Write"  id="cheakbox"checked> Write
     <form id="idForm">
@@ -11,7 +13,8 @@
         {% endfor %}
 
     </form>
-    <button id="option" type="submit" class="btn btn-outline-secondary">Submit</button>
+    <p id ="notes_id"style="display: none">{{ notes_id }}</p>
+    <button id="option" type="" class="btn btn-outline-secondary">Submit</button>
     <p id="sd"></p>
 
     <script>
@@ -21,16 +24,19 @@
                 var res = hello.substring(6);
                 var str = res.split("&users=");
                 var cheak=$("#cheakbox").val();
-                // alert(cheak);
-                // alert(str);
+                var notes_id=$("#notes_id").text();
+
+                alert(notes_id);
+                alert(str);
                 // $("#sd").text(str);  
                 $.ajax({
                     type: "GET",
                     url: "{% url 'blog-Share_option_save' %}",
-                    data: { str: str ,cheak:cheakbox },
+                    data: { notes_id:notes_id,str: 'str' ,cheak:'cheakbox' },
+                    // data={str:hello},
                     success: function (data) {
-                        // alert(data);
-                        $("#showhere").html(data);
+                        alert(data);
+                        // $("#showhere").html(data);
                     }
                 });
 

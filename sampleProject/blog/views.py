@@ -92,15 +92,22 @@ def Delete_notes(request):
 
 def Share_option(request):
     userdata=user.objects.all().order_by('id')
-    return render(request, 'blog/share_option.html', {'userdata': userdata})
+    notes_id=request.GET['notes_id']
+    return render(request, 'blog/share_option.html', {'userdata': userdata,'notes_id':notes_id})
 
 
 def Share_option_save(request):
     id = request.session['userid']
-    postdata = blog_data.objects.get(id=request.GET['id'])
+    notes_id = float(request.GET['notes_id'])
+    postdata = blog_data.objects.get(id=notes_id)
     if request.GET['cheak']:
         postdata.sharetoRW = request.GET['str']
+        postdata.save()
+        return HttpResponse("go data")
     else:
         postdata.sharetoReadOnly = request.GET['str']
-    data = blog_data.objects.filter(userid=id).order_by('-creation_date')[:5]
-    return render(request, 'blog/share.html', {'data': data})
+        return HttpResponse("no data")
+        postdata.save()
+    
+    # data = blog_data.objects.filter(userid=id).order_by('-creation_date')[:5]
+    # return render(request, 'blog/share.html', {'data': data})

@@ -114,13 +114,15 @@
             // });
         });
 
-        function share_option() {
-            // var ids = $(e).attr('id');
-            // var nw = ids.split("_");
-            // var id = nw[1];
+        function share_option(e) {
+            var ids = $(e).attr('id');
+            var nw = ids.split("_");
+            var id = nw[1];
+            alert(id);
             $.ajax({
                 type: 'GET',
                 url: "{% url 'blog-Share_option' %}",
+                data: { notes_id: id },
                 success: function (data) {
                     alert(data);
                     $("#showhere").html(data)
