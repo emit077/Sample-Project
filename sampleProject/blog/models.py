@@ -2,15 +2,13 @@ from django.db import models
 
 # Create your models here.
 
-
 class user(models.Model):
-    userid = models.CharField(max_length=10)
+    # userid = models.CharField(max_length=10)
     name = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
     mobile_no = models.CharField(max_length=12, unique=True)
     password = models.CharField(max_length=20)
     creation_date = models.DateTimeField()
-
 
 
 class blog_data(models.Model):

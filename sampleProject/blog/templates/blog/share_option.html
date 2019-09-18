@@ -1,46 +1,71 @@
-{% load static %}
-<script src="{% static 'blog/js/ajax.js' %}"></script>
 <div id="here">
-    <input type="checkbox" name="vehicle3" value="Write"  id="cheakbox"checked> Write
-    <form id="idForm">
-        <!-- {% csrf_token %} -->
+    <input type="checkbox" name="vehicle3" value="Write" id="cheakbox"> Write
+    <!-- <form id="idForm"> -->
+    <!-- {% csrf_token %} -->
+    <select name="users" id="selectthis">
         {% for pi in userdata %}
-        <select name="users" id="selectthis" multiple>
-            <li>
-                <option value="{{ pi.id }}">{{ pi.name }}</option>
-            </li>
-        </select>
+        {% if userid == pi.id %}
+        {% else %}
+        <li>
+            <option class="item-list" value="{{ pi.id }}">{{ pi.name }}</option>
+        </li>
+        {% endif %}
         {% endfor %}
+    </select>
 
-    </form>
-    <p id ="notes_id"style="display: none">{{ notes_id }}</p>
+    <!-- </form> -->
+    <p id="notes_id" style="display: none">{{ notes_id }}</p>
     <button id="option" type="" class="btn btn-outline-secondary">Submit</button>
     <p id="sd"></p>
-
-    <script>
-        $(document).ready(function () {
-            $("#option").click(function () {
-                var hello = $("#idForm").serialize();
-                var res = hello.substring(6);
-                var str = res.split("&users=");
-                var cheak=$("#cheakbox").val();
-                var notes_id=$("#notes_id").text();
-
-                alert(notes_id);
-                alert(str);
-                // $("#sd").text(str);  
-                $.ajax({
-                    type: "GET",
-                    url: "{% url 'blog-Share_option_save' %}",
-                    data: { notes_id:notes_id,str: 'str' ,cheak:'cheakbox' },
-                    // data={str:hello},
-                    success: function (data) {
-                        alert(data);
-                        // $("#showhere").html(data);
-                    }
-                });
-
-            });
-        });
-    </script>
 </div>
+<script>
+    $(document).ready(function () {
+        $("#option").click(function () {
+            var check = $("#cheakbox:checked").val();
+            if (check !== "Write") {
+                check = 0
+            }
+            var notes_id = $("#notes_id").text();
+            var strp = $("#selectthis").val();
+            alert(check);
+            alert(strp);
+            // $("#sd").text(str);  
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-Share_option_save' %}",
+                data: { 'notes_id': notes_id, 'strp': strp, 'check': check },
+                // data={str:hello},
+                success: function (data) {
+                    // alert(data);
+                    $("#showhere").html(data);
+                }
+            });
+
+        });
+    });
+
+                // $(document).ready(function () {
+                //     $("#option").click(function () {
+                //         var hello = $("#idForm").serialize();
+                //         var res = hello.substring(6);
+                //         var strp = res.split("&users=");
+                //         var cheak=$("#cheakbox").val();
+                //         var notes_id=$("#notes_id").text();
+
+                //         alert(notes_id);
+                //         alert(strp);
+                //         // $("#sd").text(str);  
+                //         $.ajax({
+                //             type: "GET",
+                //             url: "{% url 'blog-Share_option_save' %}",
+                //             data: { notes_id:notes_id,strp: strp ,cheak:cheak },
+                //             // data={str:hello},
+                //             success: function (data) {
+                //                 alert(data);
+                //                 // $("#showhere").html(data);
+                //             }
+                //         });
+
+                //     });
+                // });
+</script>

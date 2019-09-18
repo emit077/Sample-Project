@@ -11,4 +11,6 @@ urlpatterns = [
     path('Delete_notes/', views.Delete_notes, name='blog-Delete_notes'),
     path('Share_option/', views.Share_option, name='blog-Share_option'),
     path('Share_option_save/', views.Share_option_save, name='blog-Share_option_save'),
+    path('SharedToMe/', views.SharedToMe, name='blog-SharedToMe'),
+    path('', views.Logout, name='blog-Logout'),
 ]
