@@ -1,5 +1,4 @@
 from django.db import models
-
 # Create your models here.
 
 class user(models.Model):
@@ -23,6 +22,5 @@ class blog_data(models.Model):
     history = models.TextField(max_length=None)
     deletedstatuse=models.BooleanField()
 
-
-def title(self):
+    def title(self):
         return self.blog_notes[:20]

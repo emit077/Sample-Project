@@ -1,5 +1,4 @@
 {% load static %}
-
 <!DOCTYPE html>
 <html>
 
@@ -19,24 +18,40 @@
             text-align: center;
         }
     </style>
-
 </head>
 
-<body id="newbody">
+<body id="newbody" style="background-color: #e1dddd4d;">
 
 
     <!-- -----------------------------Nav Bar-------------------------------------- -->
     {% if hide %}
 
     {% else %}
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark">
+    <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="margin-bottom:20px">
         <a class="navbar-brand" href="#">{{username}}</a>
         <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
             aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
         <div class="collapse navbar-collapse" id="collapsibleNavId" style="position: absolute;right: 20px;">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item ">
-                    <a class="nav-link" href="#">My Notes</a>
+                    <input type="Text" id="Searchinput" />
+                    <input type="button" id="searchbutton" value="Search" />
+                    <div id="searchresult" style="display: none">
+                        <ul>
+                            {% if listusername %}
+                            {% for  item in listusername %}
+                            <li id="{{ item.name }}" onclick="data()"></li>
+                            {% endfor %}
+                            {% else  %}
+                            {% for item in listuserdata %}
+                            <li id="{{ item.mobile_no}}" onclick="data()"></li>
+                            {% endfor %}
+                            {% endif  %}
+                        </ul>
+                    </div>
+                </li>
+                <li class="nav-item ">
+                    <a class="nav-link" onclick="myNotes()">My Notes</a>
                 </li>
                 <li class="nav-item ">
                     <a class="nav-link btn" id="disply_textbox">Add Notes</a>
@@ -45,11 +60,12 @@
                     <a class="nav-link btn" onclick="sharedToMe()">Shared To me</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" onclick="logout()">Logout</a>
+                    <!-- <a href="{% url 'blog-home' %}" class="nav-link">Logout</a> -->
+                    <a onclick="logout()" class="nav-link">Logout</a>
                 </li>
             </ul>
         </div>
-    </nav>
+    </nav
     {% endif %}
     <!-- ----------------------------------body--------------------------------------------- -->
     <div id="showhere">
@@ -68,31 +84,23 @@
         <!-- <button id="" class="btn btn-success" onclick="showhere()">Add notes</button> -->
         {% if data  %}
         {% for pi in data  %}
-        <section class="container" id="notes_container">
-            <div class="container bg-info" style="width:100%">
-                <div class="card">
-                    <div class="row">
-                        <div class="col-md-11 px-3">
-                            <div class="card-block px-5"><br>
-                                <h3 class="card-title text-justify" style="text-decoration-line: underline;">
-                                    {{pi.title}}...
-                                </h3>
-                                <p style="text-align:right">{{pi.creation_date}}</p>
-                                <hr style="border-top-color: #1d211a;">
-                                <div id="Update_{{pi.id}}">
-                                    <p id="notes_{{pi.id}}" class="card-text">{{pi.blog_notes}} </p>
-                                    <div style="text-align-last: right">
-                                        <!-- <a href="" class="btn ">Read More</a> -->
-                                        <a id="{{pi.id}}" class="btn btn-outline-primary"
-                                            onclick="update_notes(this)">Update</a>
-                                        <a id="delete_{{pi.id}}" class="btn btn-outline-danger"
-                                            onclick="delete_notes(this)">Delete</a>
-                                        <a id="Share_{{pi.id}}" class="btn btn-outline-success"
-                                            onclick="share_option(this)">Share</a>
-
-                                    </div>
-                                </div>
-                            </div>
+        <section class="container" id="notes_container" style="background-color: aquamarine;padding-bottom:10px;">
+            <div class="container " style="width:100%" >
+                <div class="card-block px-5"><br>
+                    <h3 class="card-title text-justify" style="text-decoration-line: underline;">
+                        {{pi.title}}...
+                    </h3>
+                    <p style="text-align:right">{{pi.creation_date}}</p>
+                    <hr style="border-top-color: #1d211a;">
+                    <div id="Update_{{pi.id}}">
+                        <p id="notes_{{pi.id}}" class="card-text">{{pi.blog_notes}} </p>
+                        <div style="text-align-last: right">
+                            <!-- <a href="" class="btn ">Read More</a> -->
+                            <a id="{{pi.id}}" class="btn btn-outline-primary" onclick="update_notes(this)">Update</a>
+                            <a id="delete_{{pi.id}}" class="btn btn-outline-danger"
+                                onclick="delete_notes(this)">Delete</a>
+                            <a id="Share_{{pi.id}}" class="btn btn-outline-success"
+                                onclick="share_option(this)">Share</a>
                         </div>
                     </div>
                 </div>
@@ -106,8 +114,13 @@
         {% endif %}
     </div>
     </div>
-
     <script>
+        $(document).ready(function () {
+            $("#disply_textbox").change(function () {
+                $("#searchaterm").val();
+            });
+        });
+
         $(document).ready(function () {
             $("#disply_textbox").click(function () {
                 $("#text_note").show();
@@ -129,7 +142,7 @@
                 url: "{% url 'blog-Share_option' %}",
                 data: { notes_id: id },
                 success: function (data) {
-                    alert(data);
+                    // alert(data);
                     $("#Update_" + id).html(data)
                 }
             });
@@ -138,8 +151,8 @@
         function update_notes(e) {
             var id = $(e).attr('id');
             var str = $("#notes_" + id).text();
-            alert(id);
-            alert(str);
+            // alert(id);
+            // alert(str);
             $("#Update_" + id).empty();
             $("#Update_" + id).html('<textarea  type="text" id="notes_' + id + '" cols="100" rows="5" name="notes" value="' + str + '"> ' + str + '</textarea>' + '<br>' + '<input type="button" value="Submit" id="btn_' + id + '" onclick="PostBlogUpload(this)" />');
             $("#_" + id).hide();
@@ -151,13 +164,13 @@
             // alert(ids);
             var nw = ids.split("_");
             var id = nw[1];
-            alert(id);
+            // alert(id);
             $.ajax({
                 type: 'GET',
                 url: "{% url 'blog-Delete_notes' %}",
                 data: { id: id },
                 success: function (data) {
-                    alert("Deleted");
+                    // alert("Deleted");
                     $("#showhere").html(data)
                 }
             });
@@ -197,28 +210,54 @@
             });
         }
         function sharedToMe() {
-            alert("sharedto me");
+            // alert("sharedto me");
             $.ajax({
                 type: "GET",
                 url: "{% url 'blog-SharedToMe' %}",
                 success: function (data) {
-                    alert(data);
+                    // alert(data);
                     $("#showhere").html(data);
                 }
             });
         }
-
+        function myNotes() {
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-Share' %}",
+                success: function (data) {
+                    // alert(data);
+                    $("#showhere").html(data);
+                }
+            });
+        }
+        myNotes
         function logout() {
-            alert("sharedto me");
+            // alert("sharedto me");
             $.ajax({
                 type: "GET",
                 url: "{% url 'blog-Logout' %}",
                 success: function (data) {
-                    alert(data);
+                    // alert(data);
                     $("#newbody").html(data);
                 }
             });
         }
+
+        $("#Searchinput").on("change", function () {
+            var searchTerm = $("#Searchinput").val();
+            alert(searchTerm);
+            $("#searchresult").show();
+            $("#searchresult").val("Searching....");
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-SearchUser' %}",
+                data: { 'searchTerm': searchTerm },
+                success: function (data) {
+                    alert(data);
+                    $("#searchresult").html(data);
+                }
+            });
+        });
 
     </script>
 </body>

@@ -27,8 +27,8 @@
             }
             var notes_id = $("#notes_id").text();
             var strp = $("#selectthis").val();
-            alert(check);
-            alert(strp);
+            // alert(check);
+            // alert(strp);
             // $("#sd").text(str);  
             $.ajax({
                 type: "GET",
@@ -36,7 +36,7 @@
                 data: { 'notes_id': notes_id, 'strp': strp, 'check': check },
                 // data={str:hello},
                 success: function (data) {
-                    // alert(data);
+                    alert("shared successfuly");
                     $("#showhere").html(data);
                 }
             });

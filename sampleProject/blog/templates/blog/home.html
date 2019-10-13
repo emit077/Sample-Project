@@ -5,6 +5,8 @@
 
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<link href="https://fonts.googleapis.com/css?family=Fredericka+the+Great&display=swap" rel="stylesheet">
+	<link href="https://fonts.googleapis.com/css?family=Finger+Paint&display=swap" rel="stylesheet">
 	<link rel="stylesheet" href="{% static 'blog/css/main.css'  %}">
 	<link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
 	<link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
@@ -38,6 +40,16 @@
 		.image_container {
 			top: -700px;
 		}
+
+		.head {
+			font-family: 'Fredericka the Great', cursive;
+			font-size: 80px;
+			text-align: center;
+			color: aqua;
+			padding: 10px;
+			padding-top: 60px;
+
+		}
 	</style>
 
 </head>
@@ -48,11 +60,33 @@
 		<div class="image_container">
 			<img src="{% static 'blog/media/atom.svg'  %}" alt="Avatar" class="overlay_image">
 			<div class="image_overlay">
-				<a href="#main" class="btn btn-primary text">Click Here</a>
+				<div class="container head">
+					Write and Share your notes
+					<p style="font-family: 'Finger Paint', cursive;font-size:20px; text-align: justify">"Lorem ipsum
+						dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+						dolore magna aliqua. Ut enim ad minim veniam,
+						quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+						Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+						pariatur.
+						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+						id est laborum."</p>
+					<p style="font-family: 'Finger Paint', cursive;font-size:20px; text-align: justify">"Lorem ipsum
+						dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
+						dolore magna aliqua. Ut enim ad minim veniam,
+						quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
+						id est laborum."</p>
+
+				</div>
+				<div style="text-align: center">
+					<a href="#main" style="font-size: 20px;color:bisque;">Click Here</a>
+					<P style="color: #e7f2fdad">(or scrolldown)</P>
+				</div>
+
 			</div>
 		</div>
-		<div id="main">
-			<section id="registrationform" class="jumbotron" style="align-content: center;">
+		<div id="main" style=" height:660px;padding-top:20px">
+			<section id="registrationform" class="jumbotron" style="background-color: lightgray">
 				<h1 class="display-3">Register
 					<span class="lead" style="font-size: 14px;">or</span>
 					<span class="lead abc" id="login">Login</span>
@@ -62,11 +96,11 @@
 				{% csrf_token %}
 				<div class="form-group">
 					<label for="name">Name</label>
-					<input type="text" class="form-control" name="name" id="name" placeholder="Enter your name">
+					<input type="TEXT" class="form-control" name="name" id="name" placeholder="Enter your name">
 				</div>
 				<div class="form-group">
 					<label for="mobile_no">Contact no</label>
-					<input type="text" class="form-control" name="mobile_no" id="mobile_no" placeholder="0123456789"
+					<input type="number" class="form-control" name="mobile_no" id="mobile_no" placeholder="0123456789"
 						minlength="10" maxlength="10">
 				</div>
 				<div class="form-group">
@@ -80,7 +114,8 @@
 				<button type="submit" class="btn btn-primary" onclick="registrationData()">Submit</button>
 				<!-- </form> -->
 			</section>
-			<section id="loginform" class="jumbotron " style="align-content: center;display: none">
+			<section id="loginform" class="jumbotron "
+				style="align-content: center;display: none;background-color: lightgray; margin-top: 70px;">
 				<h1 class="display-3">Login
 					<span class="lead" style="font-size: 14px;">or</span>
 					<span class="lead abc" id="register">Register</span>
@@ -116,16 +151,21 @@
 
 				function registrationData() {
 					var name = $('#name').val();
+					if (name = "") {
+						alert("Please Enter Your Name");
+					}
+					// var email = $('#email').val();
 					var mobile_no = $('#mobile_no').val();
-					var email = $('#email').val();
+					if ((mobile_no = "") || (mobile_no = null)) {
+						alert("Please Enter Your mobile_no");
+					}
 					var password = $('#password').val();
 					var password2 = $('#password2').val();
-					// alert("hello");
-					if (password == password2) {
+					if ((password != "") || (password != null) && (password == password2)) {
 						$.ajax({
 							type: "GET",
 							url: "{% url 'blog-Registration' %}",
-							data: { 'name': name, 'mobile_no': mobile_no, 'email': email, 'password': password },
+							data: { 'name': name, 'mobile_no': mobile_no, 'password': password },
 							success: function (data) {
 								// $("#showdata").html(data);
 								$("#loginform").show();

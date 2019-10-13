@@ -2,11 +2,17 @@ from django.shortcuts import render
 from django.http import HttpResponse
 from .models import user, blog_data
 from django.utils import timezone
-
+from django.http import JsonResponse
 # Create your views here.
 
 
-def home(request):
+def home(request):  # home page is
+    try:
+        if request.session['userid']:
+            return Share(request)
+        return render(request, 'blog/home.html')
+    except KeyError:
+        pass
     return render(request, 'blog/home.html')
 
 
@@ -43,15 +49,15 @@ def Logout(request):
     try:
         del request.session['name']
         del request.session['userid']
-        return render(request, 'blog1/home.html')
+        return render(request, 'blog/home.html')
     except KeyError:
         pass
-    return render(request, 'blog1/home.html')
+    return render(request, 'blog/home.html') 
 
 
 def Share(request):
     id = request.session['userid']
-    if id:
+    if request.session['userid']:
         data = blog_data.objects.filter(
             userid=id).order_by('-creation_date')
         if data.count() > 0:
@@ -62,9 +68,9 @@ def Share(request):
         return render(request, 'blog/home.html')
 
 
-def Save_notes(request):
+def Save_notes(request):  # saving the notes
     postdata = blog_data()
-    id = request.session['userid']
+    # id = request.session['userid']
     postdata.userid = request.session['userid']
     postdata.username = request.session['name']
     # postdata.blog_title = request.GET['title']
@@ -78,7 +84,7 @@ def Save_notes(request):
     # return render(request, 'blog/home.html')
 
 
-def Update_notes(request):
+def Update_notes(request):  # updating the notes
     postdata = blog_data.objects.get(id=request.GET['id'])
     postdata.blog_notes = request.GET['notes']
     postdata.updation_date = timezone.now()
@@ -86,7 +92,7 @@ def Update_notes(request):
     return Share(request)
 
 
-def Delete_notes(request):
+def Delete_notes(request):  # deleting  notes
     postdata = blog_data.objects.get(id=request.GET['id'])
     postdata.delete()
     return Share(request)
@@ -94,29 +100,46 @@ def Delete_notes(request):
 
 def Share_option(request):
     userdata = user.objects.all().order_by('id')
-    userid =request.session['userid']
+    userdata = user.objects.exclude(id=request.session['userid']).order_by('id')
+    userid = request.session['userid']
     notes_id = request.GET['notes_id']
-    return render(request, 'blog/share_option.html', {'userdata': userdata, 'notes_id': notes_id,'userid':userid })
+    return render(request, 'blog/share_option.html', {'userdata': userdata, 'notes_id': notes_id, 'userid': userid})
 
 
 def Share_option_save(request):
     notes_id = float(request.GET['notes_id'])
     postdata = blog_data.objects.get(id=notes_id)
-    if request.GET['check'] == "0":
-        postdata.sharetoReadOnly = postdata.sharetoReadOnly + \
-            "|" + request.GET['strp']+"|"
-        postdata.save()
-        return Share(request)
-    else:
-        postdata.sharetoRW = postdata.sharetoRW+"|" + request.GET['strp']+"|"
-        postdata.save()
-        return HttpResponse("data")
+    # if request.GET['check'] == "0":
+    postdata.sharetoReadOnly = postdata.sharetoReadOnly + \
+        "|" + request.GET['strp']+"|"
+    postdata.save()
+    return Share(request)
+# else:
+    postdata.sharetoRW = postdata.sharetoRW+"|" + request.GET['strp']+"|"
+    postdata.save()
+    return HttpResponse("data")
 
 
 def SharedToMe(request):
-    userid = request.session['userid']
+    userid=request.session['userid']
     id = "|"+str(userid)+"|"
     notesdata = blog_data.objects.all()
     # notesdata = blog_data.objects.get(sharetoReadOnly__contains=id)
     # return render(request, 'blog/sharedToMe.html', {'notesdata': notesdata,'userid':userid})
     return render(request, 'blog/sharedToMe.html', {'notesdata': notesdata, 'userid': id})
+
+
+def SearchUser(request):
+    searchTerm = request.GET.get('searchTerm', None)
+    try:
+        val = int(searchTerm)
+        listuserdata = user.objects.filter(string__icontains=val)
+    except ValueError:
+        listuserdata = user.objects.filter(string__icontains=searchTerm)
+        result="<ul>"
+    for item in listuserdata:
+        result+="<li><p>"+item.name+"</p><p style= font-size:6px;>"+item.mobile_no+"</p></li>"
+    result+="</ul>"
+    return JsonResponse(result, safe=False)
+
+    # return render(request, 'blog/share.html', {'listuserdata': listuserdata})
