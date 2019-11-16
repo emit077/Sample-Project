@@ -1,0 +1,67 @@
+<div class="content-section">
+    <div class="media">
+        <div class="media-body">
+            <h2 class="account-heading">{{ profile_data.name }}</h2>
+            <p class="text-secondary">{{  profile_data.mobile_no}}</p><br>
+
+            <button class="btn btn-primary" onclick="con_request({{profile_data.id }})">Send FrienShip
+                Request</button>
+
+        </div>
+    </div>
+    {% if myid == profile_data.id %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <fieldset class="form-group">
+            <legend class="border-bottom mb-4">Profile Info</legend>
+
+        </fieldset>
+
+        <div class="form-group">
+            <!-- <button class="btn btn-outline-info" type="submit">Update</button> -->
+        </div>
+    </form>
+    {% else %}
+
+    {% endif %}
+</div>
+<div class="row">
+    {% if friendlist %}
+    {% for item  in friendlist  %}
+
+    <div class=" col-sm-4">
+        <div class="card">
+            <img class="card-img-top" data-src="holder.js/100x180/?text=Image cap" alt="">
+            <div class="card-body">
+                <a href="#" onclick="userprofile({{item.id}})">
+                    <h4 class="card-title">{{item.name}}</h4>
+                </a>
+            </div>
+            </ul>
+        </div>
+    </div>
+
+    {% endfor %}
+    {% endif %}
+</div>
+
+
+
+
+
+<script>
+    function con_request(id) {
+        // alert(id);
+        $.ajax({
+            type: 'GET',
+            url: "{% url 'blog-con_request' %}",
+            data: { 'requested_to': id },
+            success: function (data) {
+                iziToast.success({
+                    // title: 'Caution',
+                    message: data,
+                });
+            }
+        });
+    }
+</script>

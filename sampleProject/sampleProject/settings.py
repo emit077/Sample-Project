@@ -25,7 +25,7 @@ SECRET_KEY = 'juy_*z8*42bzt_mss2%a01e7co3ni4=msqt^uix9pp2x9hp3^6'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.43.197', '*']
 
 
 # Application definition
@@ -77,13 +77,13 @@ WSGI_APPLICATION = 'sampleProject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'sharenotes',
-        'HOST':'127.0.0.1',
-        'USER':'root',
-        'PASSWORD':'',
-        'PORT':'3306',
+        'NAME': 'minifb2',
+        'HOST': '127.0.0.1',
+        'USER': 'root',
+        'PASSWORD': '',
+        'PORT': '3306',
         'OPTIONS': {
-            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'",}
+            'init_command': "SET sql_mode='STRICT_TRANS_TABLES'", }
     }
 }
 
@@ -126,9 +126,11 @@ USE_TZ = True
 # STATICFILES_DIRS =[
 #     os.path.join(BASE_DIR, 'blog1/static/')
 # ]
-# 
+#
 STATIC_URL = '/blog/static/'
-# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # MEDIA_URL ='/media/'
 # MEDIA_ROOT =os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')

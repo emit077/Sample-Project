@@ -3,11 +3,15 @@
 <html>
 
 <head>
-
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
     <link rel="stylesheet" href="{% static 'blog/css/main.css'  %}">
     <link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
+    <link rel="stylesheet" href="{% static 'blog/css/iziToast.min.css' %}">
     <script src="{% static 'blog/js/ajax.js' %}"></script>
+    <script src="{% static 'blog/js/iziToast.min.js' %}"></script>
+    <!-- cdn for toasts -->
+
 
     <style>
         .jumbotron {
@@ -16,103 +20,131 @@
             margin-left: auto;
             margin-right: auto;
             text-align: center;
+            padding: 5%;
         }
     </style>
 </head>
 
-<body id="newbody" style="background-color: #e1dddd4d;">
-
+<body id="newbody" style="background-color: #fff;;">
 
     <!-- -----------------------------Nav Bar-------------------------------------- -->
-    {% if hide %}
+    <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #5f788a; ">
 
-    {% else %}
-    <nav class="navbar navbar-expand-sm navbar-dark bg-dark" style="margin-bottom:20px">
-        <a class="navbar-brand" href="#">{{username}}</a>
-        <button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
-            aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
-        <div class="collapse navbar-collapse" id="collapsibleNavId" style="position: absolute;right: 20px;">
+        <div class="collapse navbar-collapse" id="collapsibleNavId" style=" font-size:14px">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-                <li class="nav-item ">
-                    <input type="Text" id="Searchinput" />
-                    <input type="button" id="searchbutton" value="Search" />
-                    <div id="searchresult" style="display: none">
-                        <ul>
-                            {% if listusername %}
-                            {% for  item in listusername %}
-                            <li id="{{ item.name }}" onclick="data()"></li>
-                            {% endfor %}
-                            {% else  %}
-                            {% for item in listuserdata %}
-                            <li id="{{ item.mobile_no}}" onclick="data()"></li>
-                            {% endfor %}
-                            {% endif  %}
-                        </ul>
-                    </div>
+                <li class="nav-item active">
+                    <a class="nav-link" href="#"> <span class="sr-only">{{username}}</span></a>
                 </li>
-                <li class="nav-item ">
-                    <a class="nav-link" onclick="myNotes()">My Notes</a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link btn" id="disply_textbox">Add Notes</a>
-                </li>
-                <li class="nav-item ">
-                    <a class="nav-link btn" onclick="sharedToMe()">Shared To me</a>
+                <li class="nav-item active">
+                    <a class="nav-link" href="">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <!-- <a href="{% url 'blog-home' %}" class="nav-link">Logout</a> -->
-                    <a onclick="logout()" class="nav-link">Logout</a>
+                    <a class="nav-link" href="#" onclick="logout()"> Logout</a>
                 </li>
             </ul>
+            <input class="form-control mr-sm-2" type="text" id="Searchinput" placeholder="Search"
+                style="width: 15%;display: inline-block;">
+            <button class="btn btn-outline-light my-2 my-sm-0" id="searchbutton">Search</button>
         </div>
-    </nav
-    {% endif %}
+    </nav>
     <!-- ----------------------------------body--------------------------------------------- -->
-    <div id="showhere">
-        <div class="jumbotron jumbotron-fluid" style="display: none" id="text_note">
-            <div class="container">
-                <form method="POST">
-                    {% csrf_token %}
-                    <!-- <p>Title:<input type="text" id="title" name="title" /></p> -->
-                    <p>Description:<br> <textarea id="notes" cols="100" rows="5" name="notes" /></textarea></p>
-                    <br>
-                    <input type="button" class="btn btn-outline-info" value="Submit" onclick="PostBlog()" />
-                    <input type="button" class="btn btn-outline-warning" value="Close" id="hide_textbox" />
-                </form>
-            </div>
-        </div>
-        <!-- <button id="" class="btn btn-success" onclick="showhere()">Add notes</button> -->
-        {% if data  %}
-        {% for pi in data  %}
-        <section class="container" id="notes_container" style="background-color: aquamarine;padding-bottom:10px;">
-            <div class="container " style="width:100%" >
-                <div class="card-block px-5"><br>
-                    <h3 class="card-title text-justify" style="text-decoration-line: underline;">
-                        {{pi.title}}...
-                    </h3>
-                    <p style="text-align:right">{{pi.creation_date}}</p>
-                    <hr style="border-top-color: #1d211a;">
-                    <div id="Update_{{pi.id}}">
-                        <p id="notes_{{pi.id}}" class="card-text">{{pi.blog_notes}} </p>
-                        <div style="text-align-last: right">
-                            <!-- <a href="" class="btn ">Read More</a> -->
-                            <a id="{{pi.id}}" class="btn btn-outline-primary" onclick="update_notes(this)">Update</a>
-                            <a id="delete_{{pi.id}}" class="btn btn-outline-danger"
-                                onclick="delete_notes(this)">Delete</a>
-                            <a id="Share_{{pi.id}}" class="btn btn-outline-success"
-                                onclick="share_option(this)">Share</a>
+    <main role="main" class="container">
+        <div class="row">
+            <div class="col-md-8" id="mainbody">
+                {% if  messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                {% endfor%}
+                {% endif %}
+                <!-- <button id="" class="btn btn-success" onclick="showhere()">Add notes</button> -->
+                {% if data  %}
+                {% for pi in data  %}
+
+                <article class="media content-section">
+                    <div class="media-body">
+                        <div class="article-metadata">
+                            <a class="mr-5" href="#" style="font-size: 1.7rem;"
+                                onclick="userprofile({{pi.posted_by.id}})">
+                                {{ pi.posted_by.name}}
+                            </a>
+                            <small class="text-muted">{{ pi.posted_on|date:"F d, Y" }}</small>
+                        </div>
+                        <h2><a class="article-title" href="#"></a></h2>
+                        <p class="article-content">{{ pi.text }}</p>
+                        <hr style="border-color: #5f788a;">
+
+                        <textarea class="form-control mr-sm-2" type="text" id="newcomment_{{pi.id}}"
+                            placeholder="Add Comment" style="width: 70%;display: inline-block;"></textarea>
+
+                        <button id="{{pi.id}}" class="btn btn-outline-primary my-2 my-sm-0"
+                            onclick="savecomment(this)">Comment</button>
+                        <a class="btn " onclick="CommentBy({{pi.id}})">{{pi.comments_count}}</a>
+                        {% if pi.id in listliked  %}
+                        <a href="" onclick="" style="color: blue;">
+                            <span class="glyphicon glyphicon-thumbs-up"></span>
+                        </a>
+                        {% else %}
+                        <a class="btn " onclick="like_post({{pi.id}})">
+                            <span class="glyphicon glyphicon-thumbs-up"></span>
+                        </a>
+                        {% endif %}
+
+
+                        <a class="btn " onclick="likedby({{pi.id}})">{{pi.likes_count}}</a>
+                        <br>
+                        <small id="commentHelpId" class="form-text   " style="color: #ad3535;"></small>
+                        <div class="container" id="showcomments_{{pi.id}}">
                         </div>
                     </div>
+                </article>
+                {% endfor %}
+                {% else %}
+                <div style="text-align-last: center;">
+                    <h1 style="color: 0373e36e !important;"> No Notes Found </h1>
+                </div>
+                {% endif %}
+            </div>
+            <div class="col-md-4">
+                <div class="content-section">
+                    <h3><a href="#" onclick="userprofile({{ request.session.userid }})">{{ request.session.name }}</a>
+                    </h3>
+
+                    <ul class="list-group">
+                        <p class='text-muted'>
+                            <li class="list-group-item list-group-item-light">
+                                <a class="nav-link" href="#" onclick="showrequest()">Friend Request
+                                    {{ request.session.recount }}</a>
+                            </li>
+                            <!-- <li class="list-group-item list-group-item-light">Announcements</li>
+                            <li class="list-group-item list-group-item-light">Calendars</li>
+                            <li class="list-group-item list-group-item-light">etc</li> -->
+                        </p>
+                        <small id="PostHelpId" class="form-text   " style="color: #ad3535;"></small>
+                        <textarea id="notes" cols="auto" rows="5" name="notes" /
+                            placeholder=" Write Something to Post  "></textarea>
+                        <input type="button" class="btn btn-outline-info" value="POST" onclick="PostBlog()" />
+                    </ul>
+
+
                 </div>
             </div>
-        </section><br>
-        {% endfor %}
-        {% else %}
-        <div style="text-align-last: center;">
-            <h1 style="color: 0373e36e !important;"> No Notes Found </h1>
         </div>
-        {% endif %}
+    </main>
+
+
+
+
+
+    <!-- for search results -->
+    <div style="text-align:center;width:60%; ">
+        <div id="searchresult"
+            style="display: none; text-align:center; z-index: 2; position:  absolute;top: 9%; right:0%; background-color: #e1dddd9b;  width: 40%; max-width: 21%;max-height: 50%; overflow-y: scroll; border: solid 1px #e1dddd9b;">
+        </div>
     </div>
+    <!--  for a request list -->
+    <div id=" requestList" style="display: none">
+    </div>
+    <div id="showhere" style="z-index: 1;">
     </div>
     <script>
         $(document).ready(function () {
@@ -124,118 +156,62 @@
         $(document).ready(function () {
             $("#disply_textbox").click(function () {
                 $("#text_note").show();
+                $("#searchresult").hide();
+                $("#showhere").hide();
+
             });
         });
         $(document).ready(function () {
             $("#hide_textbox").click(function () {
                 $("#text_note").hide();
+                $("#showhere").show();
+
             });
         });
 
-        function share_option(e) {
-            var ids = $(e).attr('id');
-            var nw = ids.split("_");
-            var id = nw[1];
-            // alert(id);
+
+        function like_post(id) {
+
+            console.log(id);
             $.ajax({
                 type: 'GET',
-                url: "{% url 'blog-Share_option' %}",
-                data: { notes_id: id },
-                success: function (data) {
-                    // alert(data);
-                    $("#Update_" + id).html(data)
-                }
-            });
-        }
-
-        function update_notes(e) {
-            var id = $(e).attr('id');
-            var str = $("#notes_" + id).text();
-            // alert(id);
-            // alert(str);
-            $("#Update_" + id).empty();
-            $("#Update_" + id).html('<textarea  type="text" id="notes_' + id + '" cols="100" rows="5" name="notes" value="' + str + '"> ' + str + '</textarea>' + '<br>' + '<input type="button" value="Submit" id="btn_' + id + '" onclick="PostBlogUpload(this)" />');
-            $("#_" + id).hide();
-            $("#delete_" + id).hide();
-
-        }
-        function delete_notes(e) {
-            var ids = $(e).attr('id');
-            // alert(ids);
-            var nw = ids.split("_");
-            var id = nw[1];
-            // alert(id);
-            $.ajax({
-                type: 'GET',
-                url: "{% url 'blog-Delete_notes' %}",
+                url: "{% url 'blog-like_post' %}",
                 data: { id: id },
                 success: function (data) {
-                    // alert("Deleted");
-                    $("#showhere").html(data)
+                    iziToast.info({
+                        // title: 'Caution',
+                        message: data,
+                    });
                 }
             });
+
         }
         function PostBlog() {
             // var title = $('#title').val();
             var notes = $('#notes').val();
-            $('#notes').val("");
+            if (notes == null || notes == "" ||
+                notes == undefined ||
+                notes.length == 0) {
+                $("#PostHelpId").text("Please Enter Something To Post")
+                // alert("Please Enter a valid Mobile Number\n");
+                return false;
+            }
             // alert(notes);
             $.ajax({
                 type: "GET",
                 url: "{% url 'blog-Save_notes' %}",
-                data: { 'notes': notes },
+                data: { 'notes': notes, 'type': "text" },
                 success: function (data) {
-                    $("#showhere").html(data);
-                    //alert(data);
+                    $('#notes').val("");
+                    $("#newbody").html(data);
                 }
             });
         }
-        function PostBlogUpload(e) {
-            // var title = $('#title').val();
-            var ids = $(e).attr('id');
-            var nw = ids.split("_");
-            var id = nw[1];
-            // alert(id);
-            var notes = $('#notes_' + id).val();
-            // alert(title);
-            $.ajax({
-                type: "GET",
-                url: "{% url 'blog-Update_notes' %}",
-                data: { 'id': id, 'notes': notes },
-                success: function (data) {
-                    // alert(data);
-                    $("#showhere").html(data);
-
-                }
-            });
-        }
-        function sharedToMe() {
-            // alert("sharedto me");
-            $.ajax({
-                type: "GET",
-                url: "{% url 'blog-SharedToMe' %}",
-                success: function (data) {
-                    // alert(data);
-                    $("#showhere").html(data);
-                }
-            });
-        }
-        function myNotes() {
-            $.ajax({
-                type: "GET",
-                url: "{% url 'blog-Share' %}",
-                success: function (data) {
-                    // alert(data);
-                    $("#showhere").html(data);
-                }
-            });
-        }
-        myNotes
         function logout() {
             // alert("sharedto me");
             $.ajax({
                 type: "GET",
-                url: "{% url 'blog-Logout' %}",
+                url: "{% url 'blog-delete' %}",
                 success: function (data) {
                     // alert(data);
                     $("#newbody").html(data);
@@ -243,23 +219,152 @@
             });
         }
 
-        $("#Searchinput").on("change", function () {
-            var searchTerm = $("#Searchinput").val();
-            alert(searchTerm);
-            $("#searchresult").show();
-            $("#searchresult").val("Searching....");
+        function likedby(id) {
+            console.log("here");
             $.ajax({
                 type: "GET",
-                url: "{% url 'blog-SearchUser' %}",
-                data: { 'searchTerm': searchTerm },
+                url: "{% url 'blog-likedby' %}",
+                data: { 'id': id, },
                 success: function (data) {
-                    alert(data);
-                    $("#searchresult").html(data);
+                    $("#showcomments_" + id).html(data);
                 }
+            });
+        }
+        function CommentBy(id) {
+            // alert(id);
+            console.log("here");
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-commentsby' %}",
+                data: { 'id': id, },
+                success: function (data) {
+                    // alert(data);
+                    $("#showcomments_" + id).html(data);
+                    $("#showcomments_" + id).show();
+                }
+            });
+
+        }
+        function savecomment(e) {
+            // var title = $('#title').val();
+            console.log("hello this is the comment save");
+            console.log(e);
+            var id = $(e).attr('id');
+            // var nw = ids.split("_");
+            // var id = nw[1];
+            var iserror = false;
+            var newcomment = $('#newcomment_' + id).val();
+            if (newcomment == null ||
+                newcomment == undefined ||
+                newcomment.length == 0) {
+                $("#commentHelpId").text("Please Something to Commment")
+                return false;
+            }
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-comment_save' %}",
+                data: { 'id': id, 'newcomment': newcomment },
+                success: function (data) {
+                    // alert(data);
+                    $("#showcomments_" + id).html(data)
+                    $('#newcomment_' + id).val("");
+                    iziToast.success({
+                        message: "comment saved",
+                    });
+                }
+            });
+        }
+
+        $(document).ready(function () {
+            $("#searchbutton").click(function () {
+                var searchTerm = $("#Searchinput").val();
+                $("#searchresult").show();
+                $("#searchresult").val("Searching....");
+                $.ajax({
+                    type: "GET",
+                    url: "{% url 'blog-SearchUser' %}",
+                    data: { 'searchTerm': searchTerm },
+                    success: function (data) {
+                        // alert(data);
+                        $("#searchresult").html(data);
+                    }
+                });
             });
         });
 
+        function userprofile(id) {
+            // alert(id);
+            console.log(id);
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-userprofile' %}",
+                data: { 'id': id, },
+                success: function (data) {
+                    // alert(data);
+                    $("#searchresult").hide();
+                    $("#mainbody").html(data);
+                }
+            });
+
+        }
+
+        function closelist() {
+            $("#searchresult").hide();
+        }
+
+        function showrequest() {
+            // alert("data");
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-conrequiestList' %}",
+                // data:{ 'id': id },
+                success: function (data) {
+                    // alert(data);
+                    // $("#searchresult").show();
+                    $("#mainbody").html(data);
+                }
+            });
+        }
+        function accepted(id) {
+            // alert(id);
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-accept_reject_request' %}",
+                data: { 'status': "accept", 'requested_by': id },
+                success: function (data) {
+                    $("#mydiv_" + id).hide();
+                    iziToast.info({
+                        message: data,
+                    });
+                }
+            });
+        }
+        function reject(id) {
+            // alert(id);
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-accept_reject_request' %}",
+                data: { 'status': "reject", 'requested_by': id },
+                success: function (data) {
+                    $("#mydiv_" + id).hide();
+                    iziToast.info({
+                        message: data,
+                    });
+                }
+            });
+        }
+
+        // function dashboard() {
+        //     $.ajax({
+        //         type: "GET",
+        //         url: "{% url 'blog-user_post' %}",
+        //         success: function (data) {
+        //             $("#mainbody").html(data);
+        //         }
+        //     });
+        // }
     </script>
+
 </body>
 
 </html>

@@ -1,0 +1,14 @@
+{% for item in comment_list %}
+
+<div class="row">
+    <div class="col-sm-12" style="text-align:justify;background-color: aliceblue;">
+        {{item.comment}}
+        <p class="card-text text-muted" style="text-align:right"></p>
+        <a href="#" onclick="userprofile({{item.comments_by.id}})"
+            style=" font-size:12px;">{{item.comments_by.name}}</a>
+        <p class="card-text text-muted" style="text-align:right"></p>
+        {{item.date_time}}
+        </p>
+    </div>
+</div><br>
+{% endfor %}

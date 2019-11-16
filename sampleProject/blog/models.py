@@ -1,26 +1,78 @@
 from django.db import models
+from django.utils import timezone
 # Create your models here.
 
-class user(models.Model):
-    # userid = models.CharField(max_length=10)
+
+class User_data(models.Model):
+    MALE = 'MALE'
+    FEMALE = 'FEMALE'
+    OTHER = 'OTHER'
+    GENDER_IN_CHOICES = [
+        (MALE, 'MALE'),
+        (FEMALE, 'FEMALE'),
+        (OTHER, 'OTHER'),
+    ]
     name = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
+    gender = models.CharField(
+        max_length=10, choices=GENDER_IN_CHOICES, default="")
     mobile_no = models.CharField(max_length=12, unique=True)
     password = models.CharField(max_length=20)
-    creation_date = models.DateTimeField()
+    image = models.ImageField(upload_to='images/', blank=True, null=True)
+    creation_date = models.DateTimeField(default=timezone.now())
+    Isverify = models.BooleanField(default=False)
 
 
-class blog_data(models.Model):
-    userid = models.CharField(max_length=10)
-    username = models.CharField(max_length=100)
-    # blog_title = models.CharField(max_length=100)
-    blog_notes = models.TextField(max_length=None)
-    sharetoReadOnly = models.TextField(max_length= None)
-    sharetoRW = models.TextField(max_length=None)
-    creation_date = models.DateTimeField()
-    updation_date = models.DateTimeField()
-    history = models.TextField(max_length=None)
-    deletedstatuse=models.BooleanField()
+class OTP(models.Model):
+    mobile_no = models.CharField(max_length=12, unique=True)
+    otp = models.CharField(max_length=12, unique=True)
 
-    def title(self):
-        return self.blog_notes[:20]
+
+class Posted_data(models.Model):
+    posted_by = models.ForeignKey(User_data, on_delete=models.CASCADE)
+    posted_on = models.DateTimeField()
+    image = models.ImageField(upload_to='images/', blank=True)
+    text = models.TextField(max_length=None, blank=True)
+    likes_count = models.IntegerField(default=0)
+    comments_count = models.IntegerField(default=0)
+    # isilike = models.BooleanField(default=False)
+    # updation_date = models.DateTimeField()
+
+    # def likes(self):
+    #     Li = like.objects
+
+
+class Likes(models.Model):
+    post = models.ForeignKey(Posted_data, on_delete=models.CASCADE)
+    liked_by = models.ForeignKey(User_data, on_delete=models.CASCADE)
+    date_time = models.DateTimeField(default=timezone.now())
+
+
+class Comments(models.Model):
+    post = models.ForeignKey(Posted_data, on_delete=models.CASCADE)
+    comments_by = models.ForeignKey(User_data, on_delete=models.CASCADE)
+    comment = models.TextField(max_length=None, blank=True)
+    date_time = models.DateTimeField(default=timezone.now())
+
+
+class Requiest_list(models.Model):
+    PENDING = 'PENDING'
+    ACCEPTED = 'ACCEPTED'
+    REGECTED = 'REGECTED'
+    UNFRIEND = 'UNFRIEND'
+    STATUS_CHOICES = [
+        (PENDING, 'PENDING'),
+        (ACCEPTED, 'ACCEPTED'),
+        (REGECTED, 'REGECTED'),
+        (UNFRIEND, 'UNFRIEND'),
+    ]
+    requested_by = models.ForeignKey(
+        User_data, on_delete=models.CASCADE, related_name='creator')
+    # requested_to = models.CharField(max_length=10)
+    requested_to = models.ForeignKey(
+        User_data, on_delete=models.CASCADE, related_name='assignee')
+    status = models.CharField(
+        max_length=10, choices=STATUS_CHOICES, default=PENDING)
+    date_time = models.DateTimeField(default=timezone.now())
+    accept_date = models.DateTimeField(default=timezone.now())
+
+# class like(models.Model):

@@ -1,0 +1,84 @@
+<div class="content-section">
+    {% if  messages %}
+    {% for message in messages %}
+    <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor%}
+    {% endif %}
+    <fieldset class="form-group">
+        <legend class="border-bottom mb-4">Reset Password</legend>
+    </fieldset>
+    <label for="mobile">Mobile Number</label>
+    <input type="text" class="form-control numbers_only" name="mobile" id="mobile" aria-describedby="mobHelpId"
+        placeholder="1234567890" maxlength="10">
+    <small id="mobHelpId" class="form-text " style="color: #ad3535;"></small>
+
+    <label for="password">New Password</label>
+    <input type="password" class="form-control" name="password" id="password" placeholder="**********">
+    <small id="passHelpId" class="form-text " style="color: #ad3535;"></small>
+
+    <label for="password"> Conform Password</label>
+    <input type="password" class="form-control" name="password2" id="password2" placeholder="**********">
+    <small id="pass2HelpId" class="form-text " style="color: #ad3535;"></small>
+
+    <div class="form-group">
+        <button class="btn btn-outline-info" type="submit" onclick="validate_thisform()">Reset Password
+        </button>
+    </div>
+    <script>
+        function validate_thisform() {
+
+            var name = $("#name").val();
+            var mobile = $("#mobile").val();
+            var password = $("#password").val();
+            var password2 = $("#password2").val();
+
+            $("#passHelpId").text("")
+            $("#pass2HelpId").text("")
+            $("#mobHelpId").text("")
+
+
+            if (mobile == null ||
+                mobile == undefined ||
+                mobile.length < 10) {
+                $("#mobHelpId").text("Please Enter a valid Mobile Number")
+                // alert("Please Enter a valid Mobile Number\n");
+                return false;
+            }
+            if (password == null ||
+                password == undefined ||
+                password.length == 0) {
+                $("#passHelpId").text("Please Enter password")
+                // alert("Please Enter password\n");
+                return false;
+            }
+
+            if (password2 == null ||
+                password2 == undefined ||
+                password2.length == 0) {
+                $("#pass2HelpId").text("Please Enter password")
+                // alert("Please Enter password\n");
+                return false;
+            }
+            if (password2 !== password) {
+                $("#passHelpId").text("password mismatch")
+                $("#pass2HelpId").text("password mismatch")
+                return false;
+            }
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'blog-resetpass' %}",
+                data: { 'name': name, 'mobile_no': mobile, 'password': password },
+                success: function (data) {
+                    $("#mainbody").html(data)
+                }
+            });
+        }
+        $('.numbers_only').keyup(function () {
+            if (!this.value.match(/[0-9]/)) {
+                // alert(this.value);
+                this.value = this.value.replace(/[^0-9]/g, '');
+            }
+        });
+
+    </script>
+</div>

@@ -1,6 +1,4 @@
 {% load static %}
-
-<!DOCTYPE html>
 <html>
 
 <head>
@@ -10,175 +8,172 @@
 	<link rel="stylesheet" href="{% static 'blog/css/main.css'  %}">
 	<link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
 	<link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
+	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
 	<script src="{% static 'blog/js/jquery.min.js' %}"></script>
 	<script src="{% static 'blog/js/jquery.min.js' %}"></script>
+	<script src="{% static 'blog/js/iziToast.min.js' %}"></script>
+	<link rel="stylesheet" href="{% static 'blog/css/iziToast.min.css' %}">
 	<style>
-		html {
-			scroll-behavior: smooth;
-		}
-
-		.jumbotron {
-			width: 40%;
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-			background-color: aquamarine;
-		}
-
-		.btn {
-			display: block;
-			margin-left: auto;
-			margin-right: auto;
-		}
-
-		.abc {
-			color: blue;
-			font-size: 18px;
-			text-decoration: underline;
-		}
-
-		.image_container {
-			top: -700px;
-		}
-
-		.head {
-			font-family: 'Fredericka the Great', cursive;
-			font-size: 80px;
-			text-align: center;
-			color: aqua;
-			padding: 10px;
-			padding-top: 60px;
-
+		.info-red {
+			color: #ad3535;
 		}
 	</style>
-
 </head>
 
-<body id="">
-
-	<div style=" background-color:aquamarine" class="">
-		<div class="image_container">
-			<img src="{% static 'blog/media/atom.svg'  %}" alt="Avatar" class="overlay_image">
-			<div class="image_overlay">
-				<div class="container head">
-					Write and Share your notes
-					<p style="font-family: 'Finger Paint', cursive;font-size:20px; text-align: justify">"Lorem ipsum
-						dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-						dolore magna aliqua. Ut enim ad minim veniam,
-						quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-						Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-						pariatur.
-						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
-						id est laborum."</p>
-					<p style="font-family: 'Finger Paint', cursive;font-size:20px; text-align: justify">"Lorem ipsum
-						dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et
-						dolore magna aliqua. Ut enim ad minim veniam,
-						quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
-						Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim
-						id est laborum."</p>
-
-				</div>
-				<div style="text-align: center">
-					<a href="#main" style="font-size: 20px;color:bisque;">Click Here</a>
-					<P style="color: #e7f2fdad">(or scrolldown)</P>
-				</div>
-
-			</div>
+<body id="newbody">
+	<nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #5f788a;">
+		<a class="navbar-brand" href="#">Mini App</a>
+		<button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
+			aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
+		<div class="collapse navbar-collapse" id="collapsibleNavId">
+			<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
+				<li class="nav-item active">
+					<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+				</li>
+				<li class="nav-item">
+					<a class="nav-link" href="#" onclick="login()"> login</a>
+				</li>
+				<li class="nav-item dropdown">
+					<a class="nav-link" href="#" onclick="register()"> Register</a>
+				</li>
+			</ul>
+			<!-- <form class="form-inline my-2 my-lg-0">
+				<input class="form-control mr-sm-2" type="text" placeholder="Search">
+				<button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
+			</form> -->
 		</div>
-		<div id="main" style=" height:660px;padding-top:20px">
-			<section id="registrationform" class="jumbotron" style="background-color: lightgray">
-				<h1 class="display-3">Register
-					<span class="lead" style="font-size: 14px;">or</span>
-					<span class="lead abc" id="login">Login</span>
-				</h1>
-				<hr class="my-2">
-				<!-- <form method="POST" action=""> -->
-				{% csrf_token %}
-				<div class="form-group">
-					<label for="name">Name</label>
-					<input type="TEXT" class="form-control" name="name" id="name" placeholder="Enter your name">
-				</div>
-				<div class="form-group">
-					<label for="mobile_no">Contact no</label>
-					<input type="number" class="form-control" name="mobile_no" id="mobile_no" placeholder="0123456789"
-						minlength="10" maxlength="10">
-				</div>
-				<div class="form-group">
-					<label for="Password">Password</label>
-					<input type="password" class="form-control" name="password" id="password" placeholder="*********">
-				</div>
-				<div class="form-group">
-					<label for="Password">Confirm Password</label>
-					<input type="password" class="form-control" name="password2" id="password2" placeholder="*********">
-				</div>
-				<button type="submit" class="btn btn-primary" onclick="registrationData()">Submit</button>
-				<!-- </form> -->
-			</section>
-			<section id="loginform" class="jumbotron "
-				style="align-content: center;display: none;background-color: lightgray; margin-top: 70px;">
-				<h1 class="display-3">Login
-					<span class="lead" style="font-size: 14px;">or</span>
-					<span class="lead abc" id="register">Register</span>
-				</h1>
-				<hr class="my-2">
-				<form method="POST" action="{% url 'blog-Login' %}">
-					{% csrf_token %}
+	</nav>
+	<br>
+	<main role="main" class="container">
+		<div class="row">
+
+			<div class="col-md-8" id="mainbody">
+				{% if  messages %}
+				{% for message in messages %}
+				<div class="alert alert-{{ message.tags }}">{{ message }}</div>
+				{% endfor%}
+				{% endif %}
+				<div class="content-section">
+					<fieldset class="form-group">
+						<legend class="border-bottom mb-4">Log In</legend>
+					</fieldset>
 					<div class="form-group">
-						<label for="mobile_no">Contact no</label>
-						<input type="text" class="form-control" name="mobile_no" id="mobile_no" placeholder="0123456789"
-							minlength="10" maxlength="10">
-					</div>
-					<div class="form-group">
-						<label for="Password">Password</label>
+						<label for="">Mobile Number</label>
+						<input type="text" class="form-control numbers_only" name="mobile" id="mobile"
+							aria-describedby="mobHelpId" placeholder="1234567890" maxlength="10">
+						<small id="mobHelpId" class="form-text  " style="color: #ad3535;"></small>
+
+						<label for="password">Password</label>
 						<input type="password" class="form-control" name="password" id="password"
-							placeholder="*********">
+							placeholder="**********">
+						<small id="passHelpId" class="form-text   " style="color: #ad3535;"></small>
 					</div>
-					<button type="submit" class="btn btn-primary">Submit</button>
-				</form>
-				<div id="showhere"></div>
-			</section>
-			<script>
-				$(document).ready(function () {
-					$("#login").click(function () {
-						$("#registrationform").hide();
-						$("#loginform").show();
-					});
-					$("#register").click(function () {
-						$("#loginform").hide();
-						$("#registrationform").show();
-					});
-				});
-
-				function registrationData() {
-					var name = $('#name').val();
-					if (name = "") {
-						alert("Please Enter Your Name");
-					}
-					// var email = $('#email').val();
-					var mobile_no = $('#mobile_no').val();
-					if ((mobile_no = "") || (mobile_no = null)) {
-						alert("Please Enter Your mobile_no");
-					}
-					var password = $('#password').val();
-					var password2 = $('#password2').val();
-					if ((password != "") || (password != null) && (password == password2)) {
-						$.ajax({
-							type: "GET",
-							url: "{% url 'blog-Registration' %}",
-							data: { 'name': name, 'mobile_no': mobile_no, 'password': password },
-							success: function (data) {
-								// $("#showdata").html(data);
-								$("#loginform").show();
-								$("#registrationform").hide();
-								//alert(data);
-							}
-						});
-					}
-					else {
-						alert("password mismatch");
-					}
-				}
-			</script>
+					<div class="form-group">
+						<button class="btn btn-outline-info" type="submit" onclick="validate_login()">Login</button>
+					</div>
+					<div class="border-top pt-3">
+						<small class=" ">
+							Need An Account? <a class="ml-2" href="#" onclick="register()">Sign Up Now</a>
+						</small><br>
+						<small class=" ">
+							Forget password?<a class="ml-2" href="#" onclick="forgetpassword()">Click Here</a>
+						</small>
+					</div>
+				</div>
+			</div>
+			<!-- <div class="col-md-4">
+				<div class="content-section">
+					<h3>Our Sidebar</h3>
+					<p class='text-muted'>You can put any information here you'd like.
+						<ul class="list-group">
+							<li class="list-group-item list-group-item-light">Latest Posts</li>
+							<li class="list-group-item list-group-item-light">Announcements</li>
+							<li class="list-group-item list-group-item-light">Calendars</li>
+							<li class="list-group-item list-group-item-light">etc</li>
+						</ul>
+					</p>
+				</div>
+			</div> -->
 		</div>
-	</div>
+	</main>
+	<script>
+		function login() {
+			// alert(id);
+			console.log("here is the  login")
+			$.ajax({
+				type: 'GET',
+				url: "{% url 'blog-login_form' %}",
+				// data: { notes_id: id },
+				success: function (data) {
+					// alert(data);
+					$("#mainbody").html(data)
+				}
+			});
+		}
+		function register() {
+			// alert(id);
+			console.log("here is the  register")
+			$.ajax({
+				type: 'GET',
+				url: "{% url 'blog-register_form' %}",
+				// data: { notes_id: id },
+				success: function (data) {
+					// alert(data);
+					$("#mainbody").html(data)
+				}
+			});
+		}
+
+	</script>
+	<script>
+		function validate_login() {
+			var mobile = $("#mobile").val();
+			var password = $("#password").val();
+			if (mobile == null ||
+				mobile == undefined ||
+				mobile.length == 0) {
+				$("#mobHelpId").text("Please Enter a valid Mobile Number")
+				// alert("Please Enter a valid Mobile Number\n");
+				return false;
+			}
+			if (password == null ||
+				password == undefined ||
+				password.length == 0) {
+				$("#passHelpId").text("Please Enter password")
+				alert("Please Enter password\n");
+				return false;
+			}
+			$.ajax({
+				type: 'GET',
+				url: "{% url 'blog-login' %}",
+				data: { 'mobile_no': mobile, 'password': password },
+				success: function (data) {
+					$("#newbody").html(data);
+					iziToast.success({
+						//  title: ' ',
+						message: "Logged in Successfully ",
+					});
+				}
+			});
+		}
+
+		$('.numbers_only').keyup(function () {
+			if (!this.value.match(/[0-9]/)) {
+				// alert(this.value);
+				this.value = this.value.replace(/[^0-9]/g, '');
+			}
+		});
+
+		function forgetpassword() {
+			$.ajax({
+				type: 'GET',
+				url: "{% url 'blog-forgetpass' %}",
+				success: function (data) {
+					// alert(data);
+					$("#mainbody").html(data)
+				}
+			});
+		}
+
+	</script>
 </body>

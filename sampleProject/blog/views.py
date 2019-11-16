@@ -1,8 +1,15 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import user, blog_data
+from .models import User_data, Requiest_list, Posted_data, Likes, Comments,OTP
 from django.utils import timezone
 from django.http import JsonResponse
+from django.shortcuts import redirect
+from shutil import copyfile
+from django.db.models import Q
+from django.contrib.auth.models import auth
+from django.contrib import messages
+import http.client
+import random
 # Create your views here.
 
 
@@ -16,130 +23,437 @@ def home(request):  # home page is
     return render(request, 'blog/home.html')
 
 
-def Registration(request):
-    userentry = user()
+def registration(request):
     if request.method == 'GET':
-        userentry.name = request.GET['name']
-        userentry.mobile_no = request.GET['mobile_no']
-        userentry.password = request.GET['password']
+        name = request.GET.get('name', None)
+        password = request.GET.get('password', None)
+        mobile_no = request.GET.get('mobile_no', None)
+        # name = request.GET['name']
+        # password = request.GET['password']
+        # mobile_no = request.GET['mobile_no']
+        if name == "" or name == None:
+            messages.warning(
+                request, 'please Enter  Name')
+            return redirect('blog-register_form')
+        if mobile_no == "" or mobile_no == None:
+            messages.warning(
+                request, 'please Enter  valid mobile number')
+            return redirect('blog-register_form')
+        if password == "" or password == None:
+            messages.warning(
+                request, 'please Enter  valid  paasword')
+            return redirect('blog-register_form')
+        UD = User_data.objects.filter(mobile_no=mobile_no)
+        if UD.count() > 0:
+            messages.warning(
+                request, "Mobile number already exist")
+            return redirect('blog-register_form')
+
+        userentry = User_data()
+        userentry.name = name
+        userentry.mobile_no = mobile_no
+        userentry.password = password
         userentry.creation_date = timezone.now()
         userentry.save()
-        return home(request)
+
+        otp= random.randint(1000,9999)
+        print(otp)
+        # otp=OTP()
+        # otp.mobile_no=mobile_no
+        # otp.otp=otp
+        # otp.save()
+        messages.success(
+            request, " successfully register,Now Login")
+        return login_form(request)
+        # user = user.objects.create_user(
+        #     username=mobile_no, password=password)
+        # user.save()
+
+        # msg authentication
+        # Authentication = "303565AGyn1zL4jlj5dcbac5c"
+        # Mobile = "8305050674"
+        # conn = http.client.HTTPSConnection("api.msg91.com")
+        # payload = ""
+        # headers = {'content-type': "application/json"}
+        # conn.request("POST", "/api/v5/otp?invisible=1&otp=OTP%20to%20send%20and%20verify.2020%20If%20not%20sent%2C%20OTP%20will%20be%20generated.&userip=IPV4%20User_data%20IP&authkey=303565AGyn1zL4jlj5dcbac5c%20Key&email=Email%20ID&mobile=8305050674%20Number&template_id=5dcbb6b0d6fc0549a955d997%20ID&otp_length=&otp_expiry=", payload, headers)
+        # res = conn.getresponse()
+        # data = res.read()
+        # print(data.decode("utf-8"))
+
+        conn = http.client.HTTPSConnection("api.msg91.com")
+
+        payload = ""
+
+        headers = { 'content-type': "application/json" }
+
+        conn.request("POST", "/api/v5/otp?invisible=1&otp=OTP%20to%20send%20and%20verify.%20If%20not%20sent%2C%20OTP%20will%20be%20generated.&userip=IPV4%20User%20IP&authkey=303565AGyn1zL4jlj5dcbac5c&email=Email%20ID&mobile=Mobile%20Number&template_id=5dcbb6b0d6fc0549a955d997&otp_length=&otp_expiry=", payload, headers)
+
+        res = conn.getresponse()
+        data = res.read()
+
+        print(data.decode("utf-8"))
+
     else:
         return home(request)
 
 
-def Login(request):
-    userdata = user.objects.get(mobile_no=request.POST['mobile_no'])
-    if userdata.password == request.POST['password']:
-        request.session['name'] = userdata.name
-        request.session['userid'] = userdata.id
-        data = blog_data.objects.filter(
-            userid=userdata.id).order_by('-creation_date')
-        # if data.count() > 0:
-        return render(request, 'blog/share.html', {'data': data, 'username': userdata.name})
-        # else:
-        # return render(request, 'blog/share.html', {'data:not found'})
-        # return render(request, 'blog/share.html')
+def register_form(request):
+    return render(request, 'blog/register.html')
+
+
+def login_form(request):
+    return render(request, 'blog/login.html')
+
+def verifyuser(request):
+    return render(request, 'blog/login.html')
+
+
+def login(request):
+    mobile_no = request.GET.get('mobile_no', None)
+    if mobile_no == None or mobile_no == "":
+        messages.warning(
+            request, 'please Enter  Mobile no')
+        return redirect('blog-login_form')
+    try:
+        user = User_data.objects.filter(mobile_no=mobile_no)
+        if user.count() > 0:
+            userdata = User_data.objects.get(mobile_no=mobile_no)
+            if userdata.password == request.GET.get('password', None):
+                request.session['name'] = userdata.name
+                request.session['userid'] = userdata.id
+                con_request = Requiest_list.objects.filter(
+                    requested_to=userdata.id, status="PENDING")
+                requests = con_request.count()
+                data = Posted_data.objects.order_by('-posted_on')
+                return user_post(request)
+                # return render(request, 'blog/share.html', {'data': data, 'username': userdata.name, 'userid': userdata.id, 'requests': requests})
+                # return render(request, 'blog/share.html', {'username': userdata.name, 'userid': userdata.id, 'requests': requests})
+            else:
+                messages.warning(
+                    request, 'incorrect mobile number or password')
+                return render(request, 'blog/login.html')
+                # return render(request, 'blog/login.html', {'data': "incorrect mobile number or password"})
+        else:
+            messages.warning(
+                request, 'incorrect mobile number or password')
+            return render(request, 'blog/home.html')
+    except KeyError:
+        messages.warning(
+            request, 'incorrect mobile number or password')
+        return render(request, 'blog/home.html')
+
+
+def forgetpass(request):
+    return render(request, 'blog/forgetpass.html')
+
+
+def resetpass(request):
+    mobile_no = request.GET.get('mobile_no', None)
+    password = request.GET.get('password', None)
+    user = User_data.objects.filter(mobile_no=mobile_no)
+    if user.count() > 0:
+        userdata = User_data.objects.get(mobile_no=mobile_no)
+        userdata.password = password
+        userdata.save()
+        print("hello")
+        messages.success(
+                request, 'Password Reset Successfully')
+        return login_form(request)
     else:
-        return render(request, 'blog1/home.html', {'data': "incorrect mobile number or password"})
+        print("hello")
+        messages.warning(
+                request, 'User Not Exist')
+        return forgetpass(request)
+
+
+def user_post(request):
+    print('its postdata')
+    if request.session['userid']:
+        id = request.session['userid']
+        alreadyliked= Likes.objects.filter(liked_by_id=id)
+        listliked=[]
+        for item in alreadyliked:
+            listliked.append(item.post)
+            print(listliked)
+
+        userinfo = User_data.objects.get(id=id)
+        friendlist = Requiest_list.objects.filter(
+            Q(requested_by_id=id,status="ACCEPTED") | Q(requested_to_id=id,status="ACCEPTED"))
+        arr = []
+        if friendlist.count() > 0:
+            for item in friendlist:
+                if item.requested_to_id==id:
+                    arr.append(item.requested_by.id)
+                else:
+                     arr.append(item.requested_to.id)
+        post_data=Posted_data.objects.filter(posted_by_id__in=arr).order_by('-posted_on')
+
+        data = Posted_data.objects.all().order_by('-posted_on')
+        con_request = Requiest_list.objects.filter(
+            requested_to=id, status="PENDING")
+        requests = con_request.count()
+        request.session['recount']=requests
+        if data.count() > 0:
+            return render(request, 'blog/share.html', {'data': data, 'username': userinfo.name, 'userid': userinfo.id, 'requests': requests,"listliked":listliked})
+        else:
+            return render(request, 'blog/share.html', {'userinfo': userinfo})
+    # else:
+        # return render(request, 'blog/home.html')
+    #   return render (request, 'blog/userpost.html')
 
 
 def Logout(request):
+    try:
+        # del request.session['name']
+        # del request.session['userid']
+        # return render(request, 'blog/home.html')
+        return delete_session(request)
+    except KeyError:
+        pass
+    return render(request, 'blog/home.html')
+
+
+def Share(request):
+    if request.session['userid']:
+        data = Posted_data.objects.all().order_by('-posted_on')
+        if data.count() > 0:
+            return render(request, 'blog/share.html', {'data': data, 'hide': "hide"})
+        else:
+            return HttpResponse("no notes found."+str(id))
+    else:
+        return render(request, 'blog/home.html')
+
+
+def Save_notes(request):  # saving the notes
+    postdata = Posted_data()
+    postdata.posted_by_id = request.session['userid']
+    if request.GET['type'] == "text":
+        postdata.text = request.GET['notes']
+    if request.GET['type'] == "image":
+        postdata.text = request.GET['image']
+    postdata.posted_on = timezone.now()
+    postdata.save()
+    return user_post(request)
+
+
+
+def Delete_notes(request):  # deleting  notes
+    # postdata = blog_data.objects.get(id=request.GET['id'])
+    # postdata.delete()
+    return Share(request)
+
+
+
+
+
+def SearchUser(request):
+    searchTerm = request.GET.get('searchTerm', None)
+    userid = request.session['userid']
+    try:
+        val = int(searchTerm)
+        listuserdata = User_data.objects.filter(
+            mobile_no__icontains=val).exclude(id=userid)
+    except ValueError:
+        listuserdata = User_data.objects.filter(
+            name__icontains=searchTerm).exclude(id=userid)
+    return render(request, 'blog/searchlist.html', {'data': listuserdata})
+
+# session handling-------------------------------------------#############
+def create_session(request):
+    request.session['name'] = 'username'
+    request.session['password'] = 'password123'
+    return HttpResponse("<h1>dataflair<br> the session is set</h1>")
+
+
+def access_session(request):
+    response = "<h1>Welcome to Sessions of dataflair</h1><br>"
+    if request.session.get('name'):
+        response += "Name : {0} <br>".format(request.session.get('name'))
+    if request.session.get('password'):
+        response += "Password : {0} <br>".format(
+            request.session.get('password'))
+        return HttpResponse(response)
+    else:
+        return redirect('create/')
+
+
+def delete_session(request):
     try:
         del request.session['name']
         del request.session['userid']
         return render(request, 'blog/home.html')
     except KeyError:
         pass
-    return render(request, 'blog/home.html') 
+    return render(request, "Helo")
 
 
-def Share(request):
-    id = request.session['userid']
-    if request.session['userid']:
-        data = blog_data.objects.filter(
-            userid=id).order_by('-creation_date')
-        if data.count() > 0:
-            return render(request, 'blog/share.html', {'data': data, 'hide': "hide"})
-        else:
-            return HttpResponse("no notes found.")
+def userprofile(request):
+    print("userprofile")
+    myid=request.session['userid']
+    id = request.GET.get('id', None)
+    hide=False
+    if myid==id:
+        hide=True
+    if id != None and id != "":
+        profile_data = User_data.objects.get(id=id)
+        already_requested=Requiest_list.objects.filter(Q(requested_by=id)
+                                              | Q(requested_to=id))
+        arrr=[]
+        if already_requested.count()>0:
+            for item in already_requested:
+                if item.requested_to==id:
+                    arrr.append(item.requested_by.id)
+                else:
+                    arrr.append(item.requested_to.id)
+
+        friendlist = Requiest_list.objects.filter(Q(requested_by=id, status="ACCEPTED")
+                                              | Q(requested_to=id, status="ACCEPTED"))
+        arr = []
+        if friendlist.count() > 0:
+            for item in friendlist:
+                if item.requested_to_id==id:
+                    arr.append(item.requested_by.id)
+                else:
+                    arr.append(item.requested_to.id)
+        post_data=User_data.objects.filter(id__in=arr)
+                                              
+        return render(request, 'blog/userprofile.html', {'profile_data': profile_data, "hide":hide ,"friendlist":post_data,'myid':myid ,'arrr':arrr})
     else:
-        return render(request, 'blog/home.html')
+        messages.warning(
+                request, 'profile not found')
+        # return  redirect('blog')
 
 
-def Save_notes(request):  # saving the notes
-    postdata = blog_data()
-    # id = request.session['userid']
-    postdata.userid = request.session['userid']
-    postdata.username = request.session['name']
-    # postdata.blog_title = request.GET['title']
-    postdata.blog_notes = request.GET['notes']
-    postdata.creation_date = timezone.now()
-    postdata.updation_date = timezone.now()
-    postdata.deletedstatuse = 0
-    postdata.save()
-    return Share(request)
-
-    # return render(request, 'blog/home.html')
-
-
-def Update_notes(request):  # updating the notes
-    postdata = blog_data.objects.get(id=request.GET['id'])
-    postdata.blog_notes = request.GET['notes']
-    postdata.updation_date = timezone.now()
-    postdata.save()
-    return Share(request)
+def con_request(request):
+    id = request.GET['requested_to']
+    myid = request.session['userid']
+    requestentry = Requiest_list()
+    requested_by = myid
+    requested_to = id
+    RL = Requiest_list.objects.filter(requested_by=myid, requested_to=id)
+    if RL.count() > 0:
+        return HttpResponse(" Allready Requested")
+    else:
+        requestentry.requested_by_id = int(requested_by)
+        requestentry.requested_to_id = requested_to
+        requestentry.request_date = timezone.now()
+        requestentry.Accept_date = timezone.now()
+        requestentry.request_status = "PENDING"
+        requestentry.save()
+        # instence.requested_by=requested_by
+        # instence.save()
+        return HttpResponse("Request send successfully")
 
 
-def Delete_notes(request):  # deleting  notes
-    postdata = blog_data.objects.get(id=request.GET['id'])
-    postdata.delete()
-    return Share(request)
+def accept_reject_request(request):
+    id = request.GET.get('requested_by', None)
+    myid = request.session['userid']
+    print(myid)
+    print(id)
+    RL = Requiest_list.objects.filter(requested_by_id=id, requested_to_id=myid, status="PENDING")
+    if RL.count()>0:
+        RL = Requiest_list.objects.get(requested_by_id=id, requested_to_id=myid )
+        if request.GET['status'] == 'accept':
+            RL.status = "ACCEPTED"
+            RL.save()
+            return HttpResponse("Request accepted")
+            request.session['recount']=request.session['recount']+1
+        else:
+            RL.status = "REGECTED"
+            RL.save()
+            return HttpResponse("Request rejected")
+            request.session['recount']=request.session['recount']-1
+    else:
+        return HttpResponse("Request Not Found")
+
+def conrequiestList(request):
+    id = request.session['userid']
+    con_request = Requiest_list.objects.filter(
+        requested_to=id, status="PENDING")
+    cnt = con_request.count()
+    arr = []
+    for item in con_request:
+        arr.append(item.requested_by.id)
+    userdata = User_data.objects.filter(id__in=arr)
+    return render(request, 'blog/friendrequest.html', {'userdata': userdata,})
+    # for item in userdata:
+    #     result += "<p>" + item.name
+    #     result += "<input type='button' class='btn btn-outline-info' value='accept' onclick='accepted("+str(
+    #         item.id)+")' style='margin-left:120px'/>"
+    #     result += "<input type='button' class='btn btn-outline-danger' value='reject' onclick='reject(" + \
+    #         str(item.id)+")' /></p>"
+    # result += "</ul>"
+    # return JsonResponse(result, safe=False)
+    # return HttpResponse(userdata.count())
 
 
-def Share_option(request):
-    userdata = user.objects.all().order_by('id')
-    userdata = user.objects.exclude(id=request.session['userid']).order_by('id')
-    userid = request.session['userid']
-    notes_id = request.GET['notes_id']
-    return render(request, 'blog/share_option.html', {'userdata': userdata, 'notes_id': notes_id, 'userid': userid})
+def comment_save(request):
+    id = request.GET.get('id', None)
+    text = request.GET.get('newcomment', None)
+    Comments_data = Comments()
+    Comments_data.post_id = id
+    Comments_data.comments_by_id = request.session['userid']
+    Comments_data.comment = text
+    Comments_data.date_time = timezone.now()
+    Comments_data.save()
+    PDs=Posted_data.objects.filter(id=id)
+    if PDs.count()>0:
+        PD=Posted_data.objects.get(id=id)
+        PD.comments_count=PD.comments_count+1
+        PD.save()
+        CB=Comments.objects.filter(post_id=id).order_by('-date_time')[0:5]
+        return render(request, 'blog/commentlist.html', {'comment_list': CB})
+
+    # return Share(request)
 
 
-def Share_option_save(request):
-    notes_id = float(request.GET['notes_id'])
-    postdata = blog_data.objects.get(id=notes_id)
-    # if request.GET['check'] == "0":
-    postdata.sharetoReadOnly = postdata.sharetoReadOnly + \
-        "|" + request.GET['strp']+"|"
-    postdata.save()
-    return Share(request)
-# else:
-    postdata.sharetoRW = postdata.sharetoRW+"|" + request.GET['strp']+"|"
-    postdata.save()
-    return HttpResponse("data")
+def like_post(request):
+    myid = request.session['userid']
+    id = request.GET.get('id', None)
+    LDCheak = Likes.objects.filter(liked_by=myid, post_id=id)
+    if LDCheak.count() < 1:
+        LD = Likes()
+        LD.post_id = id
+        LD.liked_by_id = request.session['userid']
+        LD.date_time = timezone.now()
+        LD.save()
+        PDs= Posted_data.objects.filter(id=id)
+        if PDs.count()>0:
+            PD= Posted_data.objects.get(id=id)
+            PD.likes_count=int(PD.likes_count)+1
+            PD.save()
+            return HttpResponse("liked")
+    else:
+        return HttpResponse("already liked")
+    # return HttpResponse("already liked"+str(id)+"/"+str(myid))
+    # return Share(request)
 
 
-def SharedToMe(request):
-    userid=request.session['userid']
-    id = "|"+str(userid)+"|"
-    notesdata = blog_data.objects.all()
-    # notesdata = blog_data.objects.get(sharetoReadOnly__contains=id)
-    # return render(request, 'blog/sharedToMe.html', {'notesdata': notesdata,'userid':userid})
-    return render(request, 'blog/sharedToMe.html', {'notesdata': notesdata, 'userid': id})
+def friendlist(request):
+    id = request.session['userid']
+    friendlist = Requiest_list.objects.filter(Q(requested_by=id, status="ACCEPTED")
+                                              | Q(requested_to=id, status="ACCEPTED"))
+    return render(request, 'blog/friends.html', {'friendlist':friendlist})
 
 
-def SearchUser(request):
-    searchTerm = request.GET.get('searchTerm', None)
-    try:
-        val = int(searchTerm)
-        listuserdata = user.objects.filter(string__icontains=val)
-    except ValueError:
-        listuserdata = user.objects.filter(string__icontains=searchTerm)
-        result="<ul>"
-    for item in listuserdata:
-        result+="<li><p>"+item.name+"</p><p style= font-size:6px;>"+item.mobile_no+"</p></li>"
-    result+="</ul>"
-    return JsonResponse(result, safe=False)
+def likedby(request):
+    postid = request.GET.get('id', None)
+    LB = Likes.objects.filter(post_id=postid)
+    return render(request, 'blog/likedby.html',{'LB':LB})
 
-    # return render(request, 'blog/share.html', {'listuserdata': listuserdata})
+    # result = "<ul>"
+    # for item in LB:
+    #     result += "<p>"+item.liked_by.name+"</p>"
+    # result += "</ul>"
+    # return JsonResponse(result, safe=False)
+    # return HttpResponse(str(LB.count()))
+
+
+def commentsby(request):
+    postid = request.GET.get('id', None)
+    CB = Comments.objects.filter(post_id=postid)
+    if CB.count() < 1:
+        result = "no momments found"
+        return JsonResponse(result, safe=False)
+    else:
+        return render(request, 'blog/commentlist.html', {'comment_list': CB})
