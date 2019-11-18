@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect
 from django.http import HttpResponse
-from .models import User_data, Requiest_list, Posted_data, Likes, Comments,OTP
+from .models import User_data, Requiest_list, Posted_data, Likes, Comments, OTP
 from django.utils import timezone
 from django.http import JsonResponse
 from django.shortcuts import redirect
@@ -56,7 +56,7 @@ def registration(request):
         userentry.creation_date = timezone.now()
         userentry.save()
 
-        otp= random.randint(1000,9999)
+        otp = random.randint(1000, 9999)
         print(otp)
         # otp=OTP()
         # otp.mobile_no=mobile_no
@@ -84,7 +84,7 @@ def registration(request):
 
         payload = ""
 
-        headers = { 'content-type': "application/json" }
+        headers = {'content-type': "application/json"}
 
         conn.request("POST", "/api/v5/otp?invisible=1&otp=OTP%20to%20send%20and%20verify.%20If%20not%20sent%2C%20OTP%20will%20be%20generated.&userip=IPV4%20User%20IP&authkey=303565AGyn1zL4jlj5dcbac5c&email=Email%20ID&mobile=Mobile%20Number&template_id=5dcbb6b0d6fc0549a955d997&otp_length=&otp_expiry=", payload, headers)
 
@@ -103,6 +103,7 @@ def register_form(request):
 
 def login_form(request):
     return render(request, 'blog/login.html')
+
 
 def verifyuser(request):
     return render(request, 'blog/login.html')
@@ -170,36 +171,36 @@ def user_post(request):
     print('its postdata')
     if request.session['userid']:
         id = request.session['userid']
-        alreadyliked= Likes.objects.filter(liked_by_id=id)
-        listliked=[]
+        alreadyliked = Likes.objects.filter(liked_by_id=id)
+        listliked = []
+        print(alreadyliked.count())
         for item in alreadyliked:
-            listliked.append(item.post)
-            print(listliked)
-
+            listliked.append(item.post.id)
         userinfo = User_data.objects.get(id=id)
         friendlist = Requiest_list.objects.filter(
-            Q(requested_by_id=id,status="ACCEPTED") | Q(requested_to_id=id,status="ACCEPTED"))
+            Q(requested_by_id=id, status="ACCEPTED") | Q(requested_to_id=id, status="ACCEPTED"))
         arr = []
         if friendlist.count() > 0:
             for item in friendlist:
-                if item.requested_to_id==id:
+                if item.requested_to_id == id:
                     arr.append(item.requested_by.id)
+                    # print()
                 else:
                      arr.append(item.requested_to.id)
-        post_data=Posted_data.objects.filter(posted_by_id__in=arr).order_by('-posted_on')
+        post_data = Posted_data.objects.filter(
+            posted_by_id__in=arr).order_by('-posted_on')
 
         data = Posted_data.objects.all().order_by('-posted_on')
         con_request = Requiest_list.objects.filter(
             requested_to=id, status="PENDING")
         requests = con_request.count()
-        request.session['recount']=requests
+        request.session['recount'] = requests
         if data.count() > 0:
-            return render(request, 'blog/share.html', {'data': data, 'username': userinfo.name, 'userid': userinfo.id, 'requests': requests,"listliked":listliked})
+            return render(request, 'blog/share.html', {'data': data, 'username': userinfo.name, 'userid': userinfo.id, 'requests': requests, "listliked": listliked})
         else:
             return render(request, 'blog/share.html', {'userinfo': userinfo})
-    # else:
-        # return render(request, 'blog/home.html')
-    #   return render (request, 'blog/userpost.html')
+    else:
+        return render(request, 'blog/home.html')
 
 
 def Logout(request):
@@ -214,14 +215,15 @@ def Logout(request):
 
 
 def Share(request):
-    if request.session['userid']:
-        data = Posted_data.objects.all().order_by('-posted_on')
-        if data.count() > 0:
-            return render(request, 'blog/share.html', {'data': data, 'hide': "hide"})
-        else:
-            return HttpResponse("no notes found."+str(id))
-    else:
-        return render(request, 'blog/home.html')
+    return user_post(request)
+    # if request.session['userid']:
+    #     data = Posted_data.objects.all().order_by('-posted_on')
+    #     if data.count() > 0:
+    #         return render(request, 'blog/share.html', {'data': data, 'hide': "hide"})
+    #     else:
+    #         return HttpResponse("no notes found."+str(id))
+    # else:
+    #     return render(request, 'blog/home.html')
 
 
 def Save_notes(request):  # saving the notes
@@ -296,16 +298,17 @@ def userprofile(request):
         hide=True
     if id != None and id != "":
         profile_data = User_data.objects.get(id=id)
-        already_requested=Requiest_list.objects.filter(Q(requested_by=id)
-                                              | Q(requested_to=id))
-        arrr=[]
+        already_requested=Requiest_list.objects.filter(Q(requested_by=myid)
+                                              | Q(requested_to=myid))
+        connected=[]
         if already_requested.count()>0:
             for item in already_requested:
                 if item.requested_to==id:
-                    arrr.append(item.requested_by.id)
+                    connected.append(item.requested_by.id)
+                    print(item.requested_by.name)
                 else:
-                    arrr.append(item.requested_to.id)
-
+                    connected.append(item.requested_to.id)
+                    print(item.requested_to.name)
         friendlist = Requiest_list.objects.filter(Q(requested_by=id, status="ACCEPTED")
                                               | Q(requested_to=id, status="ACCEPTED"))
         arr = []
@@ -317,12 +320,25 @@ def userprofile(request):
                     arr.append(item.requested_to.id)
         post_data=User_data.objects.filter(id__in=arr)
                                               
-        return render(request, 'blog/userprofile.html', {'profile_data': profile_data, "hide":hide ,"friendlist":post_data,'myid':myid ,'arrr':arrr})
+        return render(request, 'blog/userprofile.html', {'profile_data': profile_data, "hide":hide ,"friendlist":post_data,'myid':myid ,'connected':connected})
     else:
         messages.warning(
                 request, 'profile not found')
         # return  redirect('blog')
 
+
+def upadteprofile(request):
+    print("updateprofile")
+    image=request.FILES["image"]
+    print(image)
+    myid = request.session['userid']
+    if myid:
+        profile=User_data.objects.get(id=myid)
+        profile.image=image
+        profile.save()
+        return HttpResponse("image saved")
+    else:
+        return HttpResponse("image not saved")
 
 def con_request(request):
     id = request.GET['requested_to']
@@ -433,8 +449,21 @@ def friendlist(request):
     id = request.session['userid']
     friendlist = Requiest_list.objects.filter(Q(requested_by=id, status="ACCEPTED")
                                               | Q(requested_to=id, status="ACCEPTED"))
-    return render(request, 'blog/friends.html', {'friendlist':friendlist})
-
+    arr=[]
+    if friendlist.count() > 0:
+        for item in friendlist:
+            if item.requested_to_id==id:
+                arr.append(item.requested_by.id)
+            else:
+                arr.append(item.requested_to.id)
+    myfriends= User_data.objects.filter(id__in=arr)
+    if myfriends.count()>0:
+        return render(request, 'blog/friends.html', {'friendlist':myfriends})
+    else:
+        messages.warning(
+                request, 'No Ftiends Friends found')
+        return  HttpResponse('No Ftiends Friends found')
+    
 
 def likedby(request):
     postid = request.GET.get('id', None)

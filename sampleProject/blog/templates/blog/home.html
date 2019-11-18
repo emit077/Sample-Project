@@ -17,23 +17,27 @@
 		.info-red {
 			color: #ad3535;
 		}
+
+		a {
+			color: #29487d;
+		}
 	</style>
 </head>
 
-<body id="newbody">
-	<nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #5f788a;">
+<body id="newbody" style="background-color: #e9ebee;">
+	<nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #29487d;">
 		<a class="navbar-brand" href="#">Mini App</a>
 		<button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
 			aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
 		<div class="collapse navbar-collapse" id="collapsibleNavId">
 			<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-				<li class="nav-item active">
+				<li id="blog-home" class="nav-item active">
 					<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
 				</li>
-				<li class="nav-item">
-					<a class="nav-link" href="#" onclick="login()"> login</a>
+				<li id="blog-login" class="nav-item">
+					<a class="nav-link" href="#" onclick="login()"> Login</a>
 				</li>
-				<li class="nav-item dropdown">
+				<li id="blog-register" class="nav-item dropdown">
 					<a class="nav-link" href="#" onclick="register()"> Register</a>
 				</li>
 			</ul>
@@ -44,6 +48,7 @@
 		</div>
 	</nav>
 	<br>
+
 	<main role="main" class="container">
 		<div class="row">
 
@@ -60,7 +65,7 @@
 					<div class="form-group">
 						<label for="">Mobile Number</label>
 						<input type="text" class="form-control numbers_only" name="mobile" id="mobile"
-							aria-describedby="mobHelpId" placeholder="1234567890" maxlength="10">
+							aria-describedby="mobHelpId" placeholder="Enter Mobile Number" maxlength="10">
 						<small id="mobHelpId" class="form-text  " style="color: #ad3535;"></small>
 
 						<label for="password">Password</label>
@@ -69,7 +74,7 @@
 						<small id="passHelpId" class="form-text   " style="color: #ad3535;"></small>
 					</div>
 					<div class="form-group">
-						<button class="btn btn-outline-info" type="submit" onclick="validate_login()">Login</button>
+						<button class="btn btn-outline-primary" type="submit" onclick="validate_login()">Login</button>
 					</div>
 					<div class="border-top pt-3">
 						<small class=" ">

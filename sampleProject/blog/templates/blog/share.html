@@ -4,7 +4,7 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="{% static 'blog/css/main.css'  %}">
     <link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
     <link rel="stylesheet" href="{% static 'blog/css/iziToast.min.css' %}">
@@ -22,14 +22,18 @@
             text-align: center;
             padding: 5%;
         }
+
+        a {
+            color: #29487d;
+        }
     </style>
 </head>
 
-<body id="newbody" style="background-color: #fff;;">
+<body id="newbody" style="background-color: #e9ebee;">
 
     <!-- -----------------------------Nav Bar-------------------------------------- -->
-    <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #5f788a; ">
-
+    <!-- <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #5f788a; "> -->
+    <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #29487d ">
         <div class="collapse navbar-collapse" id="collapsibleNavId" style=" font-size:14px">
             <ul class="navbar-nav mr-auto mt-2 mt-lg-0">
                 <li class="nav-item active">
@@ -50,7 +54,7 @@
     <!-- ----------------------------------body--------------------------------------------- -->
     <main role="main" class="container">
         <div class="row">
-            <div class="col-md-8" id="mainbody">
+            <div class="col-md-8 mt-2" id="mainbody">
                 {% if  messages %}
                 {% for message in messages %}
                 <div class="alert alert-{{ message.tags }}">{{ message }}</div>
@@ -58,40 +62,90 @@
                 {% endif %}
                 <!-- <button id="" class="btn btn-success" onclick="showhere()">Add notes</button> -->
                 {% if data  %}
-                {% for pi in data  %}
 
+                <article class="media content-section ">
+                    <div class="media-body">
+                        <div class=" row">
+                            <div class="col-sm-1">
+                                <img class="rounded-circle account-img" src="{% static 'blog/media/pc.jpg'%}"
+                                    style="width: 60px;height: 60px;">
+                            </div>
+                            <div class="col-sm-10 pt-3 ml-4">
+                                <textarea name="notes" id="notes" cols="50" rows="1"
+                                    placeholder="What's on your mind ? {{ request.session.name }}"
+                                    style="border: none;font-size:1.2rem;"></textarea>
+                                <input id="postbtn" type="button " class="btn btn-outline-primary p-0" value="POST"
+                                    onclick="PostBlog()" style=" display:none; width: 100%;" />
+                            </div>
+                        </div>
+                    </div>
+                </article>
+                {% for pi in data  %}
                 <article class="media content-section">
                     <div class="media-body">
                         <div class="article-metadata">
-                            <a class="mr-5" href="#" style="font-size: 1.7rem;"
-                                onclick="userprofile({{pi.posted_by.id}})">
-                                {{ pi.posted_by.name}}
-                            </a>
-                            <small class="text-muted">{{ pi.posted_on|date:"F d, Y" }}</small>
+                            <div class="media">
+                                <img class="rounded-circle account-img" src="{% static 'blog/media/pc.jpg'%}"
+                                    style="width: 60px;height: 60px;">
+                                <div class="media-body">
+                                    <a class="mr-5" href="#" style="font-size: 1.7rem;"
+                                        onclick="userprofile({{pi.posted_by.id}})">
+                                        {{ pi.posted_by.name}}
+                                    </a><br>
+                                    <small class="text-muted">{{ pi.posted_on|date:"F d, Y" }}</small>
+                                </div>
+                            </div>
                         </div>
-                        <h2><a class="article-title" href="#"></a></h2>
                         <p class="article-content">{{ pi.text }}</p>
-                        <hr style="border-color: #5f788a;">
 
-                        <textarea class="form-control mr-sm-2" type="text" id="newcomment_{{pi.id}}"
-                            placeholder="Add Comment" style="width: 70%;display: inline-block;"></textarea>
+                        <div class="container">
+                            <div class=" row text-muted " style="border-top: solid 1px lightgray; padding-top: 5px; ">
+                                <div class="col-sm-6 text-left">
+                                    <button class="btn " href="#" style="font-size:10px;"
+                                        onclick="likedby({{pi.id}})">{{pi.likes_count}}
+                                        Likes</button>
+                                </div>
+                                <div class="col-sm-6 text-right">
+                                    <button class="btn" href="#" style="font-size:10px;"
+                                        onclick="CommentBy({{pi.id}})">{{pi.comments_count}} Comments</button>
+                                </div>
+                            </div>
+                            <div class=" row text-center"
+                                style="border-top: solid 1px lightgray; padding-top: 5px;border-bottom: solid 1px lightgray; padding-bottom: 5px;">
+                                <div class="col-sm-6">
+                                    {% if pi.id in listliked  %}
+                                    <button class=" btn btn-outline-light" style="width: 100%;">
+                                        <img src="{% static 'blog/media/icon-like-blue.png' %}"
+                                            class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}"
+                                            alt="not fond">
+                                    </button>
+                                    {% else %}
+                                    <button class=" btn btn-outline-light" style="width: 100%;"
+                                        onclick="like_post({{pi.id}})">
+                                        <img src="{% static 'blog/media/icon-like-gray.png' %}"
+                                            class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}"
+                                            alt="not fond">
+                                    </button>
+                                    {% endif %}
 
+                                    </button>
+                                </div>
+                                <div class="col-sm-6">
+                                    <button class=" btn btn-outline-light" style="width: 100%;"
+                                        onclick="changefocus({{pi.id}})">
+                                        <img src="{% static 'blog/media/icon-comment.png' %}"
+                                            class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}"
+                                            alt="not fond">
+                                    </button>
+                                </div>
+
+                            </div>
+                        </div>
+                        <br>
+                        <input class="form-control mr-sm-2" type="text" id="newcomment_{{pi.id}}"
+                            placeholder="Add Comment" style="width:80%; display: inline-block;">
                         <button id="{{pi.id}}" class="btn btn-outline-primary my-2 my-sm-0"
                             onclick="savecomment(this)">Comment</button>
-                        <a class="btn " onclick="CommentBy({{pi.id}})">{{pi.comments_count}}</a>
-                        {% if pi.id in listliked  %}
-                        <a href="" onclick="" style="color: blue;">
-                            <span class="glyphicon glyphicon-thumbs-up"></span>
-                        </a>
-                        {% else %}
-                        <a class="btn " onclick="like_post({{pi.id}})">
-                            <span class="glyphicon glyphicon-thumbs-up"></span>
-                        </a>
-                        {% endif %}
-
-
-                        <a class="btn " onclick="likedby({{pi.id}})">{{pi.likes_count}}</a>
-                        <br>
                         <small id="commentHelpId" class="form-text   " style="color: #ad3535;"></small>
                         <div class="container" id="showcomments_{{pi.id}}">
                         </div>
@@ -104,7 +158,7 @@
                 </div>
                 {% endif %}
             </div>
-            <div class="col-md-4">
+            <div class="col-md-4 mt-2">
                 <div class="content-section">
                     <h3><a href="#" onclick="userprofile({{ request.session.userid }})">{{ request.session.name }}</a>
                     </h3>
@@ -115,14 +169,17 @@
                                 <a class="nav-link" href="#" onclick="showrequest()">Friend Request
                                     {{ request.session.recount }}</a>
                             </li>
-                            <!-- <li class="list-group-item list-group-item-light">Announcements</li>
-                            <li class="list-group-item list-group-item-light">Calendars</li>
+                            <li class="list-group-item list-group-item-light">
+                                <a class="nav-link" href="#" onclick="myfriends()">My Friends
+                                </a>
+                            </li>
+                            <!-- <li class="list-group-item list-group-item-light">Calendars</li>
                             <li class="list-group-item list-group-item-light">etc</li> -->
                         </p>
-                        <small id="PostHelpId" class="form-text   " style="color: #ad3535;"></small>
+                        <!-- <small id="PostHelpId" class="form-text   " style="color: #ad3535;"></small>
                         <textarea id="notes" cols="auto" rows="5" name="notes" /
                             placeholder=" Write Something to Post  "></textarea>
-                        <input type="button" class="btn btn-outline-info" value="POST" onclick="PostBlog()" />
+                        <input type="button" class="btn btn-outline-info" value="POST" onclick="PostBlog()" /> -->
                     </ul>
 
 
@@ -147,6 +204,20 @@
     <div id="showhere" style="z-index: 1;">
     </div>
     <script>
+        //   on focuse show rhe i post button 
+        $("#notes").focus(function () {
+            $("#postbtn").show();
+        });
+        // $("#notes").focusout(function () {
+        //     $("#postbtn").hide();
+        // });
+
+        function changefocus(id) {
+            // alert("chnagefocus");
+            $("#newcomment_" + id).focus();
+        }
+
+
         $(document).ready(function () {
             $("#disply_textbox").change(function () {
                 $("#searchaterm").val();
@@ -188,15 +259,15 @@
         }
         function PostBlog() {
             // var title = $('#title').val();
+            alert('notes');
             var notes = $('#notes').val();
             if (notes == null || notes == "" ||
                 notes == undefined ||
                 notes.length == 0) {
                 $("#PostHelpId").text("Please Enter Something To Post")
-                // alert("Please Enter a valid Mobile Number\n");
                 return false;
             }
-            // alert(notes);
+
             $.ajax({
                 type: "GET",
                 url: "{% url 'blog-Save_notes' %}",
@@ -325,6 +396,18 @@
                 }
             });
         }
+        function myfriends() {
+            // alert("data");
+            $.ajax({
+                type: "GET",
+                url: "{% url 'blog-friendlist' %}",
+                // data:{ 'id': id },
+                success: function (data) {
+
+                    $("#mainbody").html(data);
+                }
+            });
+        }
         function accepted(id) {
             // alert(id);
             $.ajax({
@@ -363,6 +446,78 @@
         //         }
         //     });
         // }
+    </script>
+    <script>
+        function validate_Registration() {
+
+            var name = $("#name").val();
+            var mobile = $("#mobile").val();
+            var password = $("#password").val();
+            var password2 = $("#password2").val();
+
+            $("#passHelpId").text("")
+            $("#pass2HelpId").text("")
+            $("#nameHelpId").text("")
+            $("#mobHelpId").text("")
+
+            if (name == null ||
+                name == undefined ||
+                name.length == 0) {
+                $("#nameHelpId").text("Please Enter Name")
+                // alert("Please Enter a valid Mobile Number\n");
+                return false;
+            } else {
+
+            }
+            if (mobile == null ||
+                mobile == undefined ||
+                mobile.length < 10) {
+                $("#mobHelpId").text("Please Enter a valid Mobile Number")
+                // alert("Please Enter a valid Mobile Number\n");
+                return false;
+            } else {
+
+            }
+            if (password == null ||
+                password == undefined ||
+                password.length == 0) {
+                $("#passHelpId").text("Please Enter password")
+                // alert("Please Enter password\n");
+                return false;
+            }
+
+            if (password2 == null ||
+                password2 == undefined ||
+                password2.length == 0) {
+                $("#pass2HelpId").text("Please Enter password")
+                // alert("Please Enter password\n");
+                return false;
+            }
+            if (password2 !== password) {
+                $("#passHelpId").text("password mismatch")
+                $("#pass2HelpId").text("password mismatch")
+                return false;
+            }
+            $.ajax({
+                type: 'GET',
+                url: "{% url 'blog-registration' %}",
+                data: { 'name': name, 'mobile_no': mobile, 'password': password },
+                success: function (data) {
+                    $("#mainbody").html(data)
+                    $("blog-register").addClass("active");
+                    $("blog-login").removeClass("active");
+                    $("blog-home").removeClass("active");
+                }
+            });
+        }
+        $('.numbers_only').keyup(function () {
+            if (!this.value.match(/[0-9]/)) {
+                // alert(this.value);
+                this.value = this.value.replace(/[^0-9]/g, '');
+            }
+        });
+
+
     </script>
 
 </body>
