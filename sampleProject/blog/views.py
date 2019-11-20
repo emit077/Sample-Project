@@ -24,16 +24,13 @@ def home(request):  # home page is
 
 
 def registration(request):
-    if request.method == 'GET':
-        name = request.GET.get('name', None)
-        password = request.GET.get('password', None)
-        mobile_no = request.GET.get('mobile_no', None)
-        # name = request.GET['name']
-        # password = request.GET['password']
-        # mobile_no = request.GET['mobile_no']
+    if request.method == 'POST':
+        name = request.POST.get('name', None)
+        password = request.POST.get('password', None)
+        mobile_no = request.POST.get('mobile', None)
         if name == "" or name == None:
             messages.warning(
-                request, 'please Enter  Name')
+                request, 'please Enter Name')
             return redirect('blog-register_form')
         if mobile_no == "" or mobile_no == None:
             messages.warning(
@@ -58,13 +55,13 @@ def registration(request):
 
         otp = random.randint(1000, 9999)
         print(otp)
-        # otp=OTP()
-        # otp.mobile_no=mobile_no
-        # otp.otp=otp
-        # otp.save()
+        otps=OTP()
+        otps.mobile_no=mobile_no
+        otps.otp=otp
+        otps.save()
         messages.success(
             request, " successfully register,Now Login")
-        return login_form(request)
+        return redirect('blog-login_form')
         # user = user.objects.create_user(
         #     username=mobile_no, password=password)
         # user.save()
@@ -102,15 +99,16 @@ def register_form(request):
 
 
 def login_form(request):
-    return render(request, 'blog/login.html')
+    return render(request, 'blog/login.html',{"hide":"hide"})
 
 
-def verifyuser(request):
+def verify_mobile_number(request):
     return render(request, 'blog/login.html')
 
 
 def login(request):
-    mobile_no = request.GET.get('mobile_no', None)
+    mobile_no = request.POST.get('mobile', None)
+    print  (mobile_no)
     if mobile_no == None or mobile_no == "":
         messages.warning(
             request, 'please Enter  Mobile no')
@@ -119,35 +117,99 @@ def login(request):
         user = User_data.objects.filter(mobile_no=mobile_no)
         if user.count() > 0:
             userdata = User_data.objects.get(mobile_no=mobile_no)
-            if userdata.password == request.GET.get('password', None):
+            if userdata.password == request.POST.get('password', None):
                 request.session['name'] = userdata.name
                 request.session['userid'] = userdata.id
                 con_request = Requiest_list.objects.filter(
                     requested_to=userdata.id, status="PENDING")
                 requests = con_request.count()
                 data = Posted_data.objects.order_by('-posted_on')
-                return user_post(request)
-                # return render(request, 'blog/share.html', {'data': data, 'username': userdata.name, 'userid': userdata.id, 'requests': requests})
-                # return render(request, 'blog/share.html', {'username': userdata.name, 'userid': userdata.id, 'requests': requests})
+                return redirect('blog-user_post')
             else:
                 messages.warning(
                     request, 'incorrect mobile number or password')
-                return render(request, 'blog/login.html')
+                # return HttpResponse("invalid password", status=401)
+                return redirect('blog-login_form')
                 # return render(request, 'blog/login.html', {'data': "incorrect mobile number or password"})
         else:
             messages.warning(
                 request, 'incorrect mobile number or password')
-            return render(request, 'blog/home.html')
+            return redirect('blog-login_form')
     except KeyError:
         messages.warning(
             request, 'incorrect mobile number or password')
-        return render(request, 'blog/home.html')
+        return redirect('blog-login_form')
 
 
 def forgetpass(request):
     return render(request, 'blog/forgetpass.html')
 
-
+def sentotp(request):
+    mobile_no = request.POST.get('mobile', None)
+    if mobile_no==None or mobile_no=="":
+        mobile_no = request.GET.get('mobile_no', None)
+    print(mobile_no)
+    if mobile_no:
+        listuser= OTP.objects.filter(mobile_no=mobile_no)
+        randomOTP = random.randint(1000, 9999)
+        print(randomOTP)
+        print(listuser.count())
+        if listuser.count()==0:
+            otps=OTP()
+            otps.mobile_no=mobile_no
+            otps.otp=randomOTP
+            otps.save()
+            messages.success(
+            request, 'OTP send Successfully')
+            return render(request, 'blog/validateotp.html', {'mobile_no':mobile_no})
+        else:
+            objOTP=OTP.objects.get(mobile_no=mobile_no)
+            objOTP.otp=randomOTP
+            objOTP.save()
+            messages.success(
+                request, 'OTP send Successfully')
+            return render(request, 'blog/validateotp.html', {'mobile_no':mobile_no})
+    else:
+        messages.warning(
+            request, 'PLease Enter mobile no')
+        return redirect("blog-forgetpass")
+    
+    
+def validateOTP(request):
+    mobile_no = request.POST.get('mobile', None)
+    rOTP = request.POST.get('otp', None)
+    print(rOTP)
+    listotps=OTP.objects.filter(mobile_no=mobile_no).order_by('-time')
+    if listotps.count()>0:
+        objOTP=listotps.first()
+        # objOTP=OTP.objects.get(mobile_no=mobile_no)
+        if objOTP.otp==rOTP:
+            messages.info(
+            request, 'OTP Verified')
+            return render(request, 'blog/newpassword.html', {'mobile_no':mobile_no})
+        else:
+            messages.warning(
+            request, 'Invalid OTP')
+        return render(request, 'blog/validateotp.html', {'mobile_no':mobile_no})
+    else:
+        messages.warning(
+            request, 'invalid mobile no')
+        return render(request, 'blog/validateotp.html', {'mobile_no':mobile_no})
+   
+        
+    
+def newpassword(request):
+    mobile_no = request.POST.get('mobile', None)
+    password = request.POST.get('password', None)
+    listuser=User_data.objects.filter(mobile_no=mobile_no)
+    if listuser.count()>0:
+        objuser= User_data.objects.get(mobile_no=mobile_no);
+        objuser.password=password
+        objuser.save()
+        messages.success(
+                request, 'Password Reset Successfully')
+        return redirect('blog-login_form')
+    
 def resetpass(request):
     mobile_no = request.GET.get('mobile_no', None)
     password = request.GET.get('password', None)
@@ -169,8 +231,9 @@ def resetpass(request):
 
 def user_post(request):
     print('its postdata')
-    if request.session['userid']:
-        id = request.session['userid']
+    id = request.session.get('userid', None)
+    print(id)
+    if id:
         alreadyliked = Likes.objects.filter(liked_by_id=id)
         listliked = []
         print(alreadyliked.count())
@@ -188,7 +251,7 @@ def user_post(request):
                 else:
                      arr.append(item.requested_to.id)
         post_data = Posted_data.objects.filter(
-            posted_by_id__in=arr).order_by('-posted_on')
+            Q(posted_by_id__in=arr)|Q(posted_by_id=id)).order_by('-posted_on')
 
         data = Posted_data.objects.all().order_by('-posted_on')
         con_request = Requiest_list.objects.filter(
@@ -196,12 +259,11 @@ def user_post(request):
         requests = con_request.count()
         request.session['recount'] = requests
         if data.count() > 0:
-            return render(request, 'blog/share.html', {'data': data, 'username': userinfo.name, 'userid': userinfo.id, 'requests': requests, "listliked": listliked})
+            return render(request, 'blog/share.html', {'data': post_data, 'username': userinfo.name, 'userid': userinfo.id, 'requests': requests, "listliked": listliked})
         else:
             return render(request, 'blog/share.html', {'userinfo': userinfo})
     else:
-        return render(request, 'blog/home.html')
-
+        return redirect('blog-home')
 
 def Logout(request):
     try:
@@ -283,48 +345,46 @@ def delete_session(request):
     try:
         del request.session['name']
         del request.session['userid']
-        return render(request, 'blog/home.html')
+        return redirect('blog-home')
+        # return render(request, 'blog/home.html')
     except KeyError:
         pass
-    return render(request, "Helo")
+    # return render(request, "Helo")
+    return redirect('blog-user_post')
 
 
-def userprofile(request):
-    print("userprofile")
-    myid=request.session['userid']
-    id = request.GET.get('id', None)
-    hide=False
-    if myid==id:
-        hide=True
-    if id != None and id != "":
-        profile_data = User_data.objects.get(id=id)
-        already_requested=Requiest_list.objects.filter(Q(requested_by=myid)
-                                              | Q(requested_to=myid))
-        connected=[]
-        if already_requested.count()>0:
-            for item in already_requested:
-                if item.requested_to==id:
-                    connected.append(item.requested_by.id)
-                    print(item.requested_by.name)
-                else:
-                    connected.append(item.requested_to.id)
-                    print(item.requested_to.name)
-        friendlist = Requiest_list.objects.filter(Q(requested_by=id, status="ACCEPTED")
-                                              | Q(requested_to=id, status="ACCEPTED"))
-        arr = []
-        if friendlist.count() > 0:
-            for item in friendlist:
-                if item.requested_to_id==id:
-                    arr.append(item.requested_by.id)
-                else:
-                    arr.append(item.requested_to.id)
-        post_data=User_data.objects.filter(id__in=arr)
-                                              
-        return render(request, 'blog/userprofile.html', {'profile_data': profile_data, "hide":hide ,"friendlist":post_data,'myid':myid ,'connected':connected})
+def userprofile(request,name,id):
+    print(name)
+    myid= request.session.get('userid', None)
+    if  myid:
+        if id != None and id != "":
+            profile_data = User_data.objects.get(id=id)
+            already_requested=Requiest_list.objects.filter(Q(requested_by=id)
+                                                | Q(requested_to=id))
+            print(already_requested)
+            connected=[]
+            if already_requested.count()>0:
+                for item in already_requested:
+                    if item.requested_to==id:
+                        connected.append(item.requested_by.id)
+                    else:
+                        connected.append(item.requested_to.id)
+            friendlist = Requiest_list.objects.filter(Q(requested_by=id, status="ACCEPTED")
+                                                | Q(requested_to=id, status="ACCEPTED"))
+            arr=[]
+            if friendlist.count() > 0:
+                for item in friendlist:
+                    if item.requested_to_id==id:
+                        arr.append(item.requested_by.id)
+                    else:
+                        arr.append(item.requested_to.id)
+            myfriends= User_data.objects.filter(id__in=arr)
+            return render(request, 'blog/userprofile.html', {'profile_data': profile_data,'friendlist':myfriends,'myid':myid ,'connected':connected})
+        else:
+            messages.warning(
+                    request, 'profile not found')
     else:
-        messages.warning(
-                request, 'profile not found')
-        # return  redirect('blog')
+        return redirect('blog-home')        
 
 
 def upadteprofile(request):
@@ -375,7 +435,7 @@ def accept_reject_request(request):
             return HttpResponse("Request accepted")
             request.session['recount']=request.session['recount']+1
         else:
-            RL.status = "REGECTED"
+            RL.status = "REJECTED"
             RL.save()
             return HttpResponse("Request rejected")
             request.session['recount']=request.session['recount']-1

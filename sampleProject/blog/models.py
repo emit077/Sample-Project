@@ -17,14 +17,15 @@ class User_data(models.Model):
         max_length=10, choices=GENDER_IN_CHOICES, default="")
     mobile_no = models.CharField(max_length=12, unique=True)
     password = models.CharField(max_length=20)
-    image = models.ImageField(upload_to='images/', blank=True, null=True)
+    image = models.ImageField(default='default.png',upload_to='images/')
     creation_date = models.DateTimeField(default=timezone.now())
     Isverify = models.BooleanField(default=False)
 
 
 class OTP(models.Model):
-    mobile_no = models.CharField(max_length=12, unique=True)
-    otp = models.CharField(max_length=12, unique=True)
+    mobile_no = models.CharField(max_length=12)
+    otp = models.CharField(max_length=5)
+    time=models.DateTimeField(default=timezone.now())
 
 
 class Posted_data(models.Model):
@@ -57,12 +58,12 @@ class Comments(models.Model):
 class Requiest_list(models.Model):
     PENDING = 'PENDING'
     ACCEPTED = 'ACCEPTED'
-    REGECTED = 'REGECTED'
+    REJECTED = 'REJECTED'
     UNFRIEND = 'UNFRIEND'
     STATUS_CHOICES = [
         (PENDING, 'PENDING'),
         (ACCEPTED, 'ACCEPTED'),
-        (REGECTED, 'REGECTED'),
+        (REJECTED, 'REJECTED'),
         (UNFRIEND, 'UNFRIEND'),
     ]
     requested_by = models.ForeignKey(

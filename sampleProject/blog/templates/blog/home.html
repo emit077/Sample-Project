@@ -1,184 +1,94 @@
-{% load static %}
-<html>
+{% extends 'blog/base.html' %}
+{% block containt %}
+<div class="content-section">
+	</ {% load static %} {% if  messages %} {% for message in messages %} <div class="alert alert-{{ message.tags }}">
+	{{ message }}</div>
+{% endfor%}
+{% endif %}
+<fieldset class="form-group">
+	<legend class="border-bottom mb-4">Log In</legend>
+</fieldset>
+<form action="{% url 'blog-login' %}" method="POST" onsubmit=" return validate_login()" name="login_form">
+	{% csrf_token %}
+	<div class="form-group">
+		<label for="">Mobile Number</label>
+		<input type="text" class="form-control numbers_only" name="mobile" id="mobile" aria-describedby="mobHelpId"
+			placeholder="Enter your password" maxlength="10">
+		<small id="mobHelpId" class="form-text  " style="color: #ad3535;"></small>
+
+		<label for="password">Password</label>
+		<input type="password" class="form-control" name="password" id="password" placeholder="**********">
+		<small id="passHelpId" class="form-text   " style="color: #ad3535;"></small>
+	</div>
+	<div class="form-group">
+		<button class="btn btn-outline-primary" type="submit">Login</button>
+	</div>
+</form>
+<div class="border-top pt-3">
+	<small class=" ">
+		Need An Account? <a class="ml-2" href="{% url 'blog-register_form' %}" onclick="register()">Sign Up
+			Now</a>
+	</small><br>
+	<small class=" ">
+		Forget password?<a class="ml-2" href="{% url 'blog-forgetpass' %}">Click Here</a>
+	</small>
+</div>
+</div>
+
+
+
+<!doctype html>
+<html lang="en">
 
 <head>
-	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<link href="https://fonts.googleapis.com/css?family=Fredericka+the+Great&display=swap" rel="stylesheet">
-	<link href="https://fonts.googleapis.com/css?family=Finger+Paint&display=swap" rel="stylesheet">
-	<link rel="stylesheet" href="{% static 'blog/css/main.css'  %}">
-	<link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
-	<link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
-	<!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
-	<script src="{% static 'blog/js/jquery.min.js' %}"></script>
-	<script src="{% static 'blog/js/jquery.min.js' %}"></script>
-	<script src="{% static 'blog/js/iziToast.min.js' %}"></script>
-	<link rel="stylesheet" href="{% static 'blog/css/iziToast.min.css' %}">
-	<style>
-		.info-red {
-			color: #ad3535;
-		}
+	<title>Title</title>
+	<!-- Required meta tags -->
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-		a {
-			color: #29487d;
-		}
-	</style>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+		integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
 </head>
 
-<body id="newbody" style="background-color: #e9ebee;">
-	<nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #29487d;">
-		<a class="navbar-brand" href="#">Mini App</a>
-		<button class="navbar-toggler d-lg-none" type="button" data-toggle="collapse" data-target="#collapsibleNavId"
-			aria-controls="collapsibleNavId" aria-expanded="false" aria-label="Toggle navigation"></button>
-		<div class="collapse navbar-collapse" id="collapsibleNavId">
-			<ul class="navbar-nav mr-auto mt-2 mt-lg-0">
-				<li id="blog-home" class="nav-item active">
-					<a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
-				</li>
-				<li id="blog-login" class="nav-item">
-					<a class="nav-link" href="#" onclick="login()"> Login</a>
-				</li>
-				<li id="blog-register" class="nav-item dropdown">
-					<a class="nav-link" href="#" onclick="register()"> Register</a>
-				</li>
-			</ul>
-			<!-- <form class="form-inline my-2 my-lg-0">
-				<input class="form-control mr-sm-2" type="text" placeholder="Search">
-				<button class="btn btn-outline-light my-2 my-sm-0" type="submit">Search</button>
-			</form> -->
-		</div>
-	</nav>
-	<br>
+<body>
+	<!-- Button trigger modal -->
+	<button type="button" class="btn btn-primary btn-lg" data-toggle="modal" data-target="#modelId">
+		Launch
+	</button>
 
-	<main role="main" class="container">
-		<div class="row">
-
-			<div class="col-md-8" id="mainbody">
-				{% if  messages %}
-				{% for message in messages %}
-				<div class="alert alert-{{ message.tags }}">{{ message }}</div>
-				{% endfor%}
-				{% endif %}
-				<div class="content-section">
-					<fieldset class="form-group">
-						<legend class="border-bottom mb-4">Log In</legend>
-					</fieldset>
-					<div class="form-group">
-						<label for="">Mobile Number</label>
-						<input type="text" class="form-control numbers_only" name="mobile" id="mobile"
-							aria-describedby="mobHelpId" placeholder="Enter Mobile Number" maxlength="10">
-						<small id="mobHelpId" class="form-text  " style="color: #ad3535;"></small>
-
-						<label for="password">Password</label>
-						<input type="password" class="form-control" name="password" id="password"
-							placeholder="**********">
-						<small id="passHelpId" class="form-text   " style="color: #ad3535;"></small>
-					</div>
-					<div class="form-group">
-						<button class="btn btn-outline-primary" type="submit" onclick="validate_login()">Login</button>
-					</div>
-					<div class="border-top pt-3">
-						<small class=" ">
-							Need An Account? <a class="ml-2" href="#" onclick="register()">Sign Up Now</a>
-						</small><br>
-						<small class=" ">
-							Forget password?<a class="ml-2" href="#" onclick="forgetpassword()">Click Here</a>
-						</small>
-					</div>
+	<!-- Modal -->
+	<div class="modal fade" id="modelId" tabindex="-1" role="dialog" aria-labelledby="modelTitleId" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">Modal title</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					Body
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+					<button type="button" class="btn btn-primary">Save</button>
 				</div>
 			</div>
-			<!-- <div class="col-md-4">
-				<div class="content-section">
-					<h3>Our Sidebar</h3>
-					<p class='text-muted'>You can put any information here you'd like.
-						<ul class="list-group">
-							<li class="list-group-item list-group-item-light">Latest Posts</li>
-							<li class="list-group-item list-group-item-light">Announcements</li>
-							<li class="list-group-item list-group-item-light">Calendars</li>
-							<li class="list-group-item list-group-item-light">etc</li>
-						</ul>
-					</p>
-				</div>
-			</div> -->
 		</div>
-	</main>
-	<script>
-		function login() {
-			// alert(id);
-			console.log("here is the  login")
-			$.ajax({
-				type: 'GET',
-				url: "{% url 'blog-login_form' %}",
-				// data: { notes_id: id },
-				success: function (data) {
-					// alert(data);
-					$("#mainbody").html(data)
-				}
-			});
-		}
-		function register() {
-			// alert(id);
-			console.log("here is the  register")
-			$.ajax({
-				type: 'GET',
-				url: "{% url 'blog-register_form' %}",
-				// data: { notes_id: id },
-				success: function (data) {
-					// alert(data);
-					$("#mainbody").html(data)
-				}
-			});
-		}
+	</div>
 
-	</script>
-	<script>
-		function validate_login() {
-			var mobile = $("#mobile").val();
-			var password = $("#password").val();
-			if (mobile == null ||
-				mobile == undefined ||
-				mobile.length == 0) {
-				$("#mobHelpId").text("Please Enter a valid Mobile Number")
-				// alert("Please Enter a valid Mobile Number\n");
-				return false;
-			}
-			if (password == null ||
-				password == undefined ||
-				password.length == 0) {
-				$("#passHelpId").text("Please Enter password")
-				alert("Please Enter password\n");
-				return false;
-			}
-			$.ajax({
-				type: 'GET',
-				url: "{% url 'blog-login' %}",
-				data: { 'mobile_no': mobile, 'password': password },
-				success: function (data) {
-					$("#newbody").html(data);
-					iziToast.success({
-						//  title: ' ',
-						message: "Logged in Successfully ",
-					});
-				}
-			});
-		}
+	<!-- Optional JavaScript -->
+	<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+	<!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+		integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+		crossorigin="anonymous"></script> -->
 
-		$('.numbers_only').keyup(function () {
-			if (!this.value.match(/[0-9]/)) {
-				// alert(this.value);
-				this.value = this.value.replace(/[^0-9]/g, '');
-			}
-		});
-
-		function forgetpassword() {
-			$.ajax({
-				type: 'GET',
-				url: "{% url 'blog-forgetpass' %}",
-				success: function (data) {
-					// alert(data);
-					$("#mainbody").html(data)
-				}
-			});
-		}
-
-	</script>
 </body>
+
+</html>
+
+{% endblock containt %}

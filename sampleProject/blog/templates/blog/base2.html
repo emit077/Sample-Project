@@ -4,6 +4,9 @@
 
 <head>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
     <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css"> -->
     <link rel="stylesheet" href="{% static 'blog/css/main.css'  %}">
     <link rel="stylesheet" href="{% static 'blog/css/bootstrap4.3.1.css' %}">
@@ -43,7 +46,7 @@
                     <a class="nav-link" href="">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#" onclick="logout()"> Logout</a>
+                    <a class="nav-link" href="{% url 'blog-delete' %}"> Logout</a>
                 </li>
             </ul>
             <input class="form-control mr-sm-2" type="text" id="Searchinput" placeholder="Search"
@@ -56,110 +59,9 @@
         <div class="row">
             <div class="col-md-8 mt-2" id="mainbody">
 
-                <!-- <button id="" class="btn btn-success" onclick="showhere()">Add notes</button> -->
+                {% block base2 %}
+                {% endblock base2 %}
 
-
-                <article class="media content-section ">
-                    <div class="media-body">
-                        <div class=" row">
-                            <div class="col-sm-1">
-                                <img class="rounded-circle account-img" src="{% static 'blog/media/pc.jpg'%}"
-                                    style="width: 60px;height: 60px;">
-                            </div>
-                            <div class="col-sm-10 pt-3 ml-4">
-                                <textarea name="notes" id="notes" cols="" rows="1"
-                                    placeholder="What's on your mind , {{ request.session.name }}?"
-                                    style="border: none;font-size:1.2rem;width:100%"></textarea>
-                                <input id="postbtn" type="button " class="btn btn-outline-primary p-0" value="POST"
-                                    onclick="PostBlog()" style=" display:none; width: 100%;" />
-                            </div>
-                        </div>
-                    </div>
-                </article>
-                {% if  messages %}
-                {% for message in messages %}
-                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-                {% endfor%}
-                {% endif %}
-                {% if data  %}
-                {% for pi in data  %}
-                <article class="media content-section">
-                    <div class="media-body">
-                        <div class="article-metadata">
-                            <div class="media">
-                                <img class="rounded-circle account-img" src="{% static 'blog/media/pc.jpg'%}"
-                                    style="width: 60px;height: 60px;">
-                                <div class="media-body">
-                                    <a class="mr-5" href="#" style="font-size: 1.7rem;"
-                                        onclick="userprofile({{pi.posted_by.id}})">
-                                        {{ pi.posted_by.name}}
-                                    </a><br>
-                                    <small class="text-muted">{{ pi.posted_on|date:"F d, Y" }}</small>
-                                </div>
-                            </div>
-                        </div>
-                        <p class="article-content">{{ pi.text }}</p>
-
-                        <div class="container">
-                            <div class=" row text-muted " style="border-top: solid 1px lightgray; padding-top: 5px; ">
-                                <div class="col-sm-6 text-left">
-                                    <button class="btn " href="#" style="font-size:10px;"
-                                        onclick="likedby({{pi.id}})">{{pi.likes_count}}
-                                        Likes</button>
-                                </div>
-                                <div class="col-sm-6 text-right">
-                                    <button class="btn" href="#" style="font-size:10px;"
-                                        onclick="CommentBy({{pi.id}})">{{pi.comments_count}} Comments</button>
-                                </div>
-                            </div>
-                            <div class=" row text-center"
-                                style="border-top: solid 1px lightgray; padding-top: 5px;border-bottom: solid 1px lightgray; padding-bottom: 5px;">
-                                <div class="col-sm-6">
-                                    {% if pi.id in listliked  %}
-                                    <button class=" btn btn-outline-light" style="width: 100%;">
-                                        <img src="{% static 'blog/media/icon-like-blue.png' %}"
-                                            class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}"
-                                            alt="not fond">
-                                    </button>
-                                    {% else %}
-                                    <button class=" btn btn-outline-light" style="width: 100%;"
-                                        onclick="like_post({{pi.id}})">
-                                        <img src="{% static 'blog/media/icon-like-gray.png' %}"
-                                            class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}"
-                                            alt="not fond">
-                                    </button>
-                                    {% endif %}
-
-                                    </button>
-                                </div>
-                                <div class="col-sm-6">
-                                    <button class=" btn btn-outline-light" style="width: 100%;"
-                                        onclick="changefocus({{pi.id}})">
-                                        <img src="{% static 'blog/media/icon-comment.png' %}"
-                                            class="img-fluid ${3|rounded-top,rounded-right,rounded-bottom,rounded-left,rounded-circle,|}"
-                                            alt="not fond">
-                                    </button>
-                                </div>
-
-                            </div>
-                        </div>
-                        <br>
-                        <input class="form-control mr-sm-2" type="text" id="newcomment_{{pi.id}}"
-                            placeholder="Add Comment" style="width:80%; display: inline-block;">
-                        <button id="{{pi.id}}" class="btn btn-outline-primary my-2 my-sm-0"
-                            onclick="savecomment(this)">Comment</button>
-                        <small id="commentHelpId" class="form-text   " style="color: #ad3535;"></small>
-                        <div class="container" id="showcomments_{{pi.id}}">
-                        </div>
-                    </div>
-                </article>
-                {% endfor %}
-                {% else %}
-                <div style="text-align-last: center;">
-                    <h4 style="color: 0373e36e !important;"> No post yet write a post </h4>
-
-                </div>
-                {% endif %}
             </div>
             <div class="col-md-4 mt-2">
                 <div class="content-section">
@@ -196,8 +98,6 @@
                             placeholder=" Write Something to Post  "></textarea>
                         <input type="button" class="btn btn-outline-info" value="POST" onclick="PostBlog()" /> -->
                     </ul>
-
-
                 </div>
             </div>
         </div>
@@ -218,7 +118,6 @@
     </div>
     <div id="showhere" style="z-index: 1;">
     </div>
-
     <script>
         //   on focuse show rhe i post button 
         $("#notes").focus(function () {
@@ -451,19 +350,7 @@
                 }
             });
         }
-
-        // function dashboard() {
-        //     $.ajax({
-        //         type: "GET",
-        //         url: "{% url 'blog-user_post' %}",
-        //         success: function (data) {
-        //             $("#mainbody").html(data);
-        //         }
-        //     });
-        // }
     </script>
-
-
 </body>
 
 </html>

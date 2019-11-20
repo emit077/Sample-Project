@@ -5,13 +5,13 @@
     </div>
     {% for item  in data  %}
     <!-- <div class="card text-left" style="padding: 5px;"></div> -->
-    <a href="#" clo onclick="userprofile({{item.id}})">
+    <a href="{% url 'blog-userprofile' item.name item.id  %}">
         <p class="card-title">{{item.name}}</p>
         <!-- </div> -->
         {% endfor %}
 </div>
 {% else %}
 <div style="text-align-last: center;">
-    <h1 style="color: 0373e36e !important;"> No Notes Found </h1>
+    <p class="text-muted">  not found </>
 </div>
 {% endif %}
